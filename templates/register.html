@@ -1,0 +1,123 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% if LANGUAGE_CODE == 'ar' %}التسجيل{% else %}Register{% endif %} - Abo Raaya Motors{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="glass-card p-5">
+                <div class="text-center mb-4">
+                    <img src="{% static 'images/logo.png' %}" alt="Abo Raaya Motors" style="height: 80px; margin-bottom: 20px;">
+                    <h2 class="text-white">{% if LANGUAGE_CODE == 'ar' %}إنشاء حساب{% else %}Create Account{% endif %}</h2>
+                    <p class="text-white">{% if LANGUAGE_CODE == 'ar' %}انضم إلى أبو رعيا موتورز اليوم{% else %}Join Abo Raaya Motors today{% endif %}</p>
+                </div>
+
+                {% if form.errors %}
+                <div class="alert alert-danger">
+                    <ul class="mb-0">
+                        {% for field, errors in form.errors.items %}
+                        {% for error in errors %}
+                        <li>{{ error }}</li>
+                        {% endfor %}
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+
+                <form method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="id_username" class="form-label text-white">{% if LANGUAGE_CODE == 'ar' %}اسم المستخدم{% else %}Username{% endif %} *</label>
+                            {{ form.username }}
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label for="id_email" class="form-label text-white">{% if LANGUAGE_CODE == 'ar' %}البريد الإلكتروني{% else %}Email{% endif %} *</label>
+                            {{ form.email }}
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label for="id_password1" class="form-label text-white">{% if LANGUAGE_CODE == 'ar' %}كلمة المرور{% else %}Password{% endif %} *</label>
+                            {{ form.password1 }}
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label for="id_password2" class="form-label text-white">{% if LANGUAGE_CODE == 'ar' %}تأكيد كلمة المرور{% else %}Confirm Password{% endif %} *</label>
+                            {{ form.password2 }}
+                        </div>
+
+                        <div class="col-12 mb-3">
+                            <label for="id_phone_number" class="form-label text-white">{% if LANGUAGE_CODE == 'ar' %}رقم الهاتف{% else %}Phone Number{% endif %} *</label>
+                            {{ form.phone_number }}
+                            <small class="text-white d-block mt-2">{% if LANGUAGE_CODE == 'ar' %}الصيغة: +20XXXXXXXXXX{% else %}Format: +20XXXXXXXXXX{% endif %}</small>
+                        </div>
+
+                        <div class="col-12 mb-4">
+                            <div style="background: var(--midnight-700); padding: 1.25rem; border-radius: var(--radius-md); border: 2px solid var(--midnight-600);">
+                                <div class="form-check">
+                                    {{ form.is_dealer }}
+                                    <label class="form-check-label text-white" for="id_is_dealer" style="margin-left: 0.5rem; font-weight: 500; cursor: pointer;">{% if LANGUAGE_CODE == 'ar' %}أنا صاحب معرض{% else %}I am a car dealer{% endif %}</label>
+                                </div>
+                                <small class="text-white d-block mt-2" style="margin-left: 1.75rem; opacity: 0.8;">{% if LANGUAGE_CODE == 'ar' %}سيتم عرض شارة "معرض موثوق" على إعلاناتك بعد التحقق{% else %}A "Verified Dealer" badge will appear on your listings after verification{% endif %}</small>
+
+                                <div id="dealer-docs" class="mt-3" style="display: none; border-top: 1px solid var(--midnight-600); padding-top: 1rem;">
+                                    <h6 class="text-gold mb-3">{% if LANGUAGE_CODE == 'ar' %}وثائق التحقق (مطلوبة للمعرض){% else %}Verification Documents (Required for Dealers){% endif %}</h6>
+                                    <div class="mb-3">
+                                        <label for="id_commercial_registry" class="form-label text-white">{% if LANGUAGE_CODE == 'ar' %}السجل التجاري{% else %}Commercial Registry{% endif %} *</label>
+                                        {{ form.commercial_registry }}
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="id_tax_card" class="form-label text-white">{% if LANGUAGE_CODE == 'ar' %}البطاقة الضريبية{% else %}Tax Card{% endif %} *</label>
+                                        {{ form.tax_card }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-primary w-100 mb-3">
+                        <i class="bi bi-person-plus"></i>
+                        {% if LANGUAGE_CODE == 'ar' %}إنشاء حساب{% else %}Create Account{% endif %}
+                    </button>
+
+                    <div class="text-center">
+                        <p class="text-white">{% if LANGUAGE_CODE == 'ar' %}لديك حساب بالفعل؟ <a href="{% url 'core:login' %}" class="text-link">سجل الدخول هنا</a>{% else %}Already have an account? <a href="{% url 'core:login' %}" class="text-link">Login here</a>{% endif %}</p>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const dealerCheckbox = document.getElementById('id_is_dealer');
+    const dealerDocs = document.getElementById('dealer-docs');
+    const commRegInput = document.getElementById('id_commercial_registry');
+    const taxCardInput = document.getElementById('id_tax_card');
+    
+    function toggleDocs() {
+        if (dealerCheckbox && dealerCheckbox.checked) {
+            dealerDocs.style.display = 'block';
+            if (commRegInput) commRegInput.required = true;
+            if (taxCardInput) taxCardInput.required = true;
+        } else {
+            dealerDocs.style.display = 'none';
+            if (commRegInput) commRegInput.required = false;
+            if (taxCardInput) taxCardInput.required = false;
+        }
+    }
+    
+    if (dealerCheckbox) {
+        toggleDocs();
+        dealerCheckbox.addEventListener('change', toggleDocs);
+    }
+});
+</script>
+{% endblock %}

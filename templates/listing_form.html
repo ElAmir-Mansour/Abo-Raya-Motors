@@ -1,0 +1,143 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans "Sell Your Car" %} - Abo Raaya Motors{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="glass-card p-5">
+                <h2 class="mb-4 text-center">
+                    <i class="bi bi-plus-circle text-gold"></i> {% trans "Create New Listing" %}
+                </h2>
+
+                <form method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+
+                    <!-- Step 1: Car Selection -->
+                    <div class="mb-5">
+                        <h4 class="text-gold mb-3">{% trans "Step 1: Select Your Car" %}</h4>
+
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label for="id_make" class="form-label">{% trans "Make" %} *</label>
+                                {{ form.make }}
+                            </div>
+
+                            <div class="col-md-4">
+                                <label for="id_model" class="form-label">{% trans "Model" %} *</label>
+                                {{ form.model }}
+                            </div>
+
+                            <div class="col-md-4">
+                                <label for="id_trim" class="form-label">{% trans "Trim & Year" %} *</label>
+                                {{ form.trim }}
+                            </div>
+                        </div>
+
+                        <!-- Trim details will appear here -->
+                        <div id="trim-details"></div>
+                    </div>
+
+                    <hr class="my-4" style="border-color: var(--glass-border);">
+
+                    <!-- Step 2: Listing Details -->
+                    <div class="mb-5">
+                        <h4 class="text-gold mb-3">{% trans "Step 2: Listing Details" %}</h4>
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="id_price" class="form-label">{% trans "Price (EGP)" %} *</label>
+                                {{ form.price }}
+                                {% if form.price.errors %}
+                                <div class="text-danger small">{{ form.price.errors }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="id_odometer" class="form-label">{% trans "Odometer (km)" %} *</label>
+                                {{ form.odometer }}
+                                {% if form.odometer.errors %}
+                                <div class="text-danger small">{{ form.odometer.errors }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="id_color" class="form-label">{% trans "Color" %} *</label>
+                                {{ form.color }}
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="id_location" class="form-label">{% trans "Location" %} *</label>
+                                {{ form.location }}
+                            </div>
+
+                            <div class="col-12">
+                                <label for="id_description" class="form-label">{% trans "Description" %} *</label>
+                                {{ form.description }}
+                                <small class="text-muted">{% trans "Describe the condition, features, and any
+                                    modifications" %}</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr class="my-4" style="border-color: var(--glass-border);">
+
+                    <!-- Step 3: Images -->
+                    <div class="mb-4">
+                        <h4 class="text-gold mb-3">{% trans "Step 3: Upload Images" %}</h4>
+                        <p class="text-gray-200">{% trans "Upload up to 5 high-quality images. First image will be the
+                            main photo." %}</p>
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="id_image_main" class="form-label">{% trans "Main Image" %} *</label>
+                                {{ form.image_main }}
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="id_image_2" class="form-label">{% trans "Image 2" %}</label>
+                                {{ form.image_2 }}
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="id_image_3" class="form-label">{% trans "Image 3" %}</label>
+                                {{ form.image_3 }}
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="id_image_4" class="form-label">{% trans "Image 4" %}</label>
+                                {{ form.image_4 }}
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="id_image_5" class="form-label">{% trans "Image 5" %}</label>
+                                {{ form.image_5 }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Form Errors -->
+                    {% if form.non_field_errors %}
+                    <div class="alert alert-danger">
+                        {{ form.non_field_errors }}
+                    </div>
+                    {% endif %}
+
+                    <!-- Submit Button -->
+                    <div class="text-center mt-5">
+                        <button type="submit" class="btn-primary px-5 py-3">
+                            <i class="bi bi-check-circle"></i> {% trans "Submit Listing for Review" %}
+                        </button>
+                        <p class="text-muted small mt-3">
+                            {% trans "Your listing will be reviewed by our team before being published" %}
+                        </p>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

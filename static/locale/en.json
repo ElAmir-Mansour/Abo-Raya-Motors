@@ -1,0 +1,139 @@
+{
+    "site": {
+        "name": "Abo Raaya Motors",
+        "tagline": "Egypt's Premium Car Marketplace"
+    },
+    "nav": {
+        "home": "Home",
+        "search": "Search Cars",
+        "sell": "Sell Your Car",
+        "dashboard": "Dashboard",
+        "login": "Login",
+        "register": "Sign Up",
+        "logout": "Logout"
+    },
+    "auth": {
+        "welcome_back": "Welcome Back",
+        "create_account": "Create Account",
+        "login_subtitle": "Login to your account",
+        "register_subtitle": "Join Abo Raaya Motors today",
+        "phone_number": "Phone Number",
+        "phone_placeholder": "+20 123 456 7890",
+        "send_code": "Send Code",
+        "verify_code": "Verify Code",
+        "enter_code": "Enter the code sent to your phone",
+        "resend_code": "Didn't receive the code? Resend",
+        "username": "Username",
+        "email": "Email",
+        "password": "Password",
+        "confirm_password": "Confirm Password",
+        "i_am_dealer": "I am a car dealer",
+        "already_have_account": "Already have an account?",
+        "dont_have_account": "Don't have an account?",
+        "login_here": "Login here",
+        "register_here": "Sign up here"
+    },
+    "car": {
+        "make": "Make",
+        "model": "Model",
+        "trim": "Trim Level",
+        "year": "Year",
+        "transmission": "Transmission",
+        "automatic": "Automatic",
+        "manual": "Manual",
+        "odometer": "Odometer (km)",
+        "fuel_type": "Fuel Type",
+        "petrol": "Petrol",
+        "diesel": "Diesel",
+        "electric": "Electric",
+        "hybrid": "Hybrid",
+        "horsepower": "Horsepower",
+        "engine": "Engine",
+        "color": "Color",
+        "price": "Price",
+        "location": "Location",
+        "description": "Description",
+        "fuel_consumption": "Fuel Consumption (L/100km)"
+    },
+    "listing": {
+        "create": "Create New Listing",
+        "your_listings": "Your Listings",
+        "featured": "Featured Listings",
+        "similar": "Similar Listings",
+        "view_details": "View Details",
+        "contact_seller": "Contact Seller",
+        "show_phone": "Show Phone Number",
+        "save_listing": "Save Listing",
+        "share": "Share",
+        "views": "views",
+        "sold": "Sold",
+        "active": "Active",
+        "pending": "Pending Review",
+        "draft": "Draft",
+        "expired": "Expired"
+    },
+    "search": {
+        "search_cars": "Search Cars",
+        "filters": "Filters",
+        "all_makes": "All Makes",
+        "all_egypt": "All Egypt",
+        "any_year": "Any Year",
+        "any_price": "Any Price",
+        "min_price": "Min Price",
+        "max_price": "Max Price",
+        "apply_filters": "Apply Filters",
+        "clear_filters": "Clear Filters",
+        "found": "Found",
+        "cars": "cars",
+        "no_cars_found": "No cars found",
+        "try_adjusting": "Try adjusting your filters"
+    },
+    "badges": {
+        "fuel_saver": "Fuel Saver",
+        "high_performance": "High Performance",
+        "low_mileage": "Low Mileage",
+        "verified_dealer": "Verified Dealer",
+        "great_deal": "Great Deal",
+        "good_price": "Good Price",
+        "fair_price": "Fair Price"
+    },
+    "dashboard": {
+        "title": "Seller Dashboard",
+        "total_listings": "Total Listings",
+        "total_views": "Total Views",
+        "total_phone_clicks": "Phone Clicks",
+        "create_listing": "Create New Listing"
+    },
+    "common": {
+        "submit": "Submit",
+        "cancel": "Cancel",
+        "delete": "Delete",
+        "edit": "Edit",
+        "save": "Save",
+        "upload": "Upload",
+        "loading": "Loading...",
+        "error": "Error",
+        "success": "Success"
+    },
+    "categories": {
+        "sedan": "Sedan",
+        "suv": "SUV",
+        "hatchback": "Hatchback",
+        "coupe": "Coupe",
+        "pickup": "Pickup",
+        "van": "Van",
+        "convertible": "Convertible"
+    },
+    "locations": {
+        "cairo": "Cairo",
+        "alexandria": "Alexandria",
+        "giza": "Giza"
+    },
+    "footer": {
+        "about": "About Us",
+        "contact": "Contact",
+        "terms": "Terms of Service",
+        "privacy": "Privacy Policy",
+        "copyright": "All rights reserved."
+    }
+}

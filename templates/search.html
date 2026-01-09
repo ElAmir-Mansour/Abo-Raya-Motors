@@ -1,0 +1,523 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load i18n %}
+{% load static i18n humanize core_filters %}
+
+
+
+{% block title %}
+{% if LANGUAGE_CODE == 'ar' %}بحث عن سيارات{% else %}Search Cars{% endif %} - Abo Raaya Motors
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Header with results count -->
+    <div class="mb-4">
+        <h1 class="text-white mb-2">
+            {% if LANGUAGE_CODE == 'ar' %}
+            ابحث عن سيارتك 🔍
+            {% else %}
+            Search Cars 🔍
+            {% endif %}
+        </h1>
+        <p class="text-gray-300">
+            {% if LANGUAGE_CODE == 'ar' %}
+            وجدنا <span class="text-gold">{{ total_count }}</span> سيارة
+            {% else %}
+            Found <span class="text-gold">{{ total_count }}</span> cars
+            {% endif %}
+        </p>
+    </div>
+
+    <div class="row">
+        <!-- Filters Sidebar -->
+        <div class="col-lg-3 mb-4">
+            <div class="glass-card p-4" style="position: sticky; top: 100px;">
+                <form method="GET" action="{% url 'core:search' %}" id="searchForm">
+
+                    <!-- Keyword Search -->
+                    <div class="mb-4">
+                        <label class="form-label text-white fw-bold">
+                            {% if LANGUAGE_CODE == 'ar' %}بحث بالكلمة المفتاحية{% else %}Keyword Search{% endif %}
+                        </label>
+                        <input type="text" name="q" class="form-control"
+                            placeholder="{% if LANGUAGE_CODE == 'ar'  %}مثال: تويوتا كامري{% else %}e.g., Toyota Camry{% endif %}"
+                            value="{{ filters.q }}">
+                    </div>
+
+                    <hr style="border-color: var(--midnight-600);">
+
+                    <!-- Essential Filters Section -->
+                    <h5 class="text-gold mb-3">
+                        {% if LANGUAGE_CODE == 'ar' %}فلاتر أساسية{% else %}Essential Filters{% endif %}
+                    </h5>
+
+                    <!-- Make & Model -->
+                    <div class="mb-3">
+                        <label class="form-label text-white">
+                            {% if LANGUAGE_CODE == 'ar' %}الماركة{% else %}Make{% endif %}
+                        </label>
+                        <select name="make" id="makeSelect" class="form-select"
+                            onchange="loadModelsForSearch(this.value)">
+                            <option value="">{% if LANGUAGE_CODE == 'ar' %}كل الماركات{% else %}All Makes{% endif %}
+                            </option>
+                            {% for make in makes %}
+                            <option value="{{ make.id }}" {% if filters.make == make.id|stringformat:"s" %}selected{% endif %}>{% if LANGUAGE_CODE == 'ar' %}{{ make.name_ar }}{% else %}{{ make.name_en }}{% endif %}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label text-white">
+                            {% if LANGUAGE_CODE == 'ar' %}الموديل{% else %}Model{% endif %}
+                        </label>
+                        <select name="model" id="modelSelect" class="form-select">
+                            <option value="">{% if LANGUAGE_CODE == 'ar' %}كل الموديلات{% else %}All Models{% endif %}
+                            </option>
+                            {% for model in models %}
+                            <option value="{{ model.id }}" {% if filters.model == model.id|stringformat:"s" %}selected{% endif %}>{% if LANGUAGE_CODE == 'ar' %}{{ model.name_ar }}{% else %}{{ model.name_en }}{% endif %}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Price Range -->
+                    <div class="mb-3">
+                        <label class="form-label text-white">
+                            {% if LANGUAGE_CODE == 'ar' %}السعر (جنيه){% else %}Price (EGP){% endif %}
+                        </label>
+                        <div class="row g-2">
+                            <div class="col-6">
+                                <input type="number" name="min_price" class="form-control"
+                                    placeholder="{% if LANGUAGE_CODE == 'ar'  %}من{% else %}Min{% endif %}"
+                                    value="{{ filters.min_price }}">
+                            </div>
+                            <div class="col-6">
+                                <input type="number" name="max_price" class="form-control"
+                                    placeholder="{% if LANGUAGE_CODE == 'ar'  %}إلى{% else %}Max{% endif %}"
+                                    value="{{ filters.max_price }}">
+                            </div>
+                        </div>
+                        <!-- Quick price buttons -->
+                        <div class="d-flex flex-wrap gap-1 mt-2">
+                            <button type="button" class="btn btn-sm btn-outline-light" onclick="setPrice(0, 100000)">
+                                {% if LANGUAGE_CODE == 'ar' %}أقل من 100 ألف{% else %}&lt; 100K{% endif %}
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-light"
+                                onclick="setPrice(100000, 300000)">100K-300K</button>
+                            <button type="button" class="btn btn-sm btn-outline-light"
+                                onclick="setPrice(300000, 500000)">300K-500K</button>
+                            <button type="button" class="btn btn-sm btn-outline-light"
+                                onclick="setPrice(500000, null)">500K+</button>
+                        </div>
+                    </div>
+
+                    <!-- Year Range -->
+                    <div class="mb-3">
+                        <label class="form-label text-white">
+                            {% if LANGUAGE_CODE == 'ar' %}سنة الصنع{% else %}Year{% endif %}
+                        </label>
+                        <div class="row g-2">
+                            <div class="col-6">
+                                <select name="min_year" class="form-select">
+                                    <option value="">{% if LANGUAGE_CODE == 'ar' %}من{% else %}From{% endif %}</option>
+                                    <option value="2024" {% if filters.min_year == "2024" %}selected{% endif %}>2024
+                                    </option>
+                                    <option value="2023" {% if filters.min_year == "2023" %}selected{% endif %}>2023
+                                    </option>
+                                    <option value="2022" {% if filters.min_year == "2022" %}selected{% endif %}>2022
+                                    </option>
+                                    <option value="2021" {% if filters.min_year == "2021" %}selected{% endif %}>2021
+                                    </option>
+                                    <option value="2020" {% if filters.min_year == "2020" %}selected{% endif %}>2020
+                                    </option>
+                                    <option value="2019" {% if filters.min_year == "2019" %}selected{% endif %}>2019
+                                    </option>
+                                    <option value="2018" {% if filters.min_year == "2018" %}selected{% endif %}>2018
+                                    </option>
+                                    <option value="2017" {% if filters.min_year == "2017" %}selected{% endif %}>2017
+                                    </option>
+                                    <option value="2016" {% if filters.min_year == "2016" %}selected{% endif %}>2016
+                                    </option>
+                                    <option value="2015" {% if filters.min_year == "2015" %}selected{% endif %}>2015
+                                    </option>
+                                </select>
+                            </div>
+                            <div class="col-6">
+                                <select name="max_year" class="form-select">
+                                    <option value="">{% if LANGUAGE_CODE == 'ar' %}إلى{% else %}To{% endif %}</option>
+                                    <option value="2024" {% if filters.max_year == "2024" %}selected{% endif %}>2024
+                                    </option>
+                                    <option value="2023" {% if filters.max_year == "2023" %}selected{% endif %}>2023
+                                    </option>
+                                    <option value="2022" {% if filters.max_year == "2022" %}selected{% endif %}>2022
+                                    </option>
+                                    <option value="2021" {% if filters.max_year == "2021" %}selected{% endif %}>2021
+                                    </option>
+                                    <option value="2020" {% if filters.max_year == "2020" %}selected{% endif %}>2020
+                                    </option>
+                                    <option value="2019" {% if filters.max_year == "2019" %}selected{% endif %}>2019
+                                    </option>
+                                    <option value="2018" {% if filters.max_year == "2018" %}selected{% endif %}>2018
+                                    </option>
+                                    <option value="2017" {% if filters.max_year == "2017" %}selected{% endif %}>2017
+                                    </option>
+                                    <option value="2016" {% if filters.max_year == "2016" %}selected{% endif %}>2016
+                                    </option>
+                                    <option value="2015" {% if filters.max_year == "2015" %}selected{% endif %}>2015
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Location -->
+                    <div class="mb-3">
+                        <label class="form-label text-white">
+                            {% if LANGUAGE_CODE == 'ar' %}المحافظة{% else %}Governorate{% endif %}
+                        </label>
+                        <select name="governorate" class="form-select">
+                            <option value="">{% if LANGUAGE_CODE == 'ar' %}كل مصر{% else %}All Egypt{% endif %}</option>
+                            {% for code, name in governorates %}
+                            <option value="{{ code }}" {% if filters.governorate == code %}selected{% endif %}>
+                                {{ name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <hr style="border-color: var(--midnight-600);">
+
+                    <!-- Advanced Filters (Collapsible) -->
+                    <div class="mb-3">
+                        <button class="btn btn-link text-gold p-0 w-100 text-start" type="button"
+                            data-bs-toggle="collapse" data-bs-target="#advancedFilters">
+                            <h5 class="mb-0">
+                                {% if LANGUAGE_CODE == 'ar' %}فلاتر متقدمة{% else %}Advanced Filters{% endif %}
+                                <i class="bi bi-chevron-down float-end"></i>
+                            </h5>
+                        </button>
+                    </div>
+
+                    <div class="collapse" id="advancedFilters">
+                        <!-- Transmission -->
+                        <div class="mb-3">
+                            <label class="form-label text-white">
+                                {% if LANGUAGE_CODE == 'ar' %}ناقل الحركة{% else %}Transmission{% endif %}
+                            </label>
+                            <select name="transmission" class="form-select">
+                                <option value="">{% if LANGUAGE_CODE == 'ar' %}الكل{% else %}All{% endif %}</option>
+                                <option value="AUTO" {% if filters.transmission == "AUTO" %}selected{% endif %}>
+                                    {% if LANGUAGE_CODE == 'ar' %}أوتوماتيك{% else %}Automatic{% endif %}
+                                </option>
+                                <option value="MANUAL" {% if filters.transmission == "MANUAL" %}selected{% endif %}>
+                                    {% if LANGUAGE_CODE == 'ar' %}مانيوال{% else %}Manual{% endif %}
+                                </option>
+                            </select>
+                        </div>
+
+                        <!-- Fuel Type -->
+                        <div class="mb-3">
+                            <label class="form-label text-white">
+                                {% if LANGUAGE_CODE == 'ar' %}نوع الوقود{% else %}Fuel Type{% endif %}
+                            </label>
+                            <select name="fuel_type" class="form-select">
+                                <option value="">{% if LANGUAGE_CODE == 'ar' %}الكل{% else %}All{% endif %}</option>
+                                <option value="PETROL" {% if filters.fuel_type == "PETROL" %}selected{% endif %}>
+                                    {% if LANGUAGE_CODE == 'ar' %}بنزين{% else %}Petrol{% endif %}
+                                </option>
+                                <option value="DIESEL" {% if filters.fuel_type == "DIESEL" %}selected{% endif %}>
+                                    {% if LANGUAGE_CODE == 'ar' %}سولار{% else %}Diesel{% endif %}
+                                </option>
+                                <option value="ELECTRIC" {% if filters.fuel_type == "ELECTRIC" %}selected{% endif %}>
+                                    {% if LANGUAGE_CODE == 'ar' %}كهرباء{% else %}Electric{% endif %}
+                                </option>
+                                <option value="HYBRID" {% if filters.fuel_type == "HYBRID" %}selected{% endif %}>
+                                    {% if LANGUAGE_CODE == 'ar' %}هايبرد{% else %}Hybrid{% endif %}
+                                </option>
+                            </select>
+                        </div>
+
+                        <!-- Mileage -->
+                        <div class="mb-3">
+                            <label class="form-label text-white">
+                                {% if LANGUAGE_CODE == 'ar' %}الممشى (كحد أقصى){% else %}Max Mileage (km){% endif %}
+                            </label>
+                            <input type="number" name="max_mileage" class="form-control"
+                                placeholder="{% if LANGUAGE_CODE == 'ar'  %}مثال: 100000{% else %}e.g., 100000{% endif %}"
+                                value="{{ filters.max_mileage }}">
+                            <div class="d-flex flex-wrap gap-1 mt-2">
+                                <button type="button" class="btn btn-sm btn-outline-light"
+                                    onclick="setMileage(50000)">50K</button>
+                                <button type="button" class="btn btn-sm btn-outline-light"
+                                    onclick="setMileage(100000)">100K</button>
+                                <button type="button" class="btn btn-sm btn-outline-light"
+                                    onclick="setMileage(150000)">150K</button>
+                            </div>
+                        </div>
+
+                        <!-- Color -->
+                        <div class="mb-3">
+                            <label class="form-label text-white">
+                                {% if LANGUAGE_CODE == 'ar' %}اللون{% else %}Color{% endif %}
+                            </label>
+                            <select name="color" class="form-select">
+                                <option value="">{% if LANGUAGE_CODE == 'ar' %}الكل{% else %}All Colors{% endif %}
+                                </option>
+                                <option value="White" {% if filters.color == "White" %}selected{% endif %}>
+                                    {% if LANGUAGE_CODE == 'ar' %}أبيض{% else %}White{% endif %}
+                                </option>
+                                <option value="Black" {% if filters.color == "Black" %}selected{% endif %}>
+                                    {% if LANGUAGE_CODE == 'ar' %}أسود{% else %}Black{% endif %}
+                                </option>
+                                <option value="Silver" {% if filters.color == "Silver" %}selected{% endif %}>
+                                    {% if LANGUAGE_CODE == 'ar' %}فضي{% else %}Silver{% endif %}
+                                </option>
+                                <option value="Gray" {% if filters.color == "Gray" %}selected{% endif %}>
+                                    {% if LANGUAGE_CODE == 'ar' %}رمادي{% else %}Gray{% endif %}
+                                </option>
+                                <option value="Red" {% if filters.color == "Red" %}selected{% endif %}>
+                                    {% if LANGUAGE_CODE == 'ar' %}أحمر{% else %}Red{% endif %}
+                                </option>
+                                <option value="Blue" {% if filters.color == "Blue" %}selected{% endif %}>
+                                    {% if LANGUAGE_CODE == 'ar' %}أزرق{% else %}Blue{% endif %}
+                                </option>
+                            </select>
+                        </div>
+
+                        <!-- Seller Type -->
+                        <div class="mb-3">
+                            <label class="form-label text-white">
+                                {% if LANGUAGE_CODE == 'ar' %}نوع البائع{% else %}Seller Type{% endif %}
+                            </label>
+                            <select name="seller_type" class="form-select">
+                                <option value="">{% if LANGUAGE_CODE == 'ar' %}الكل{% else %}All{% endif %}</option>
+                                <option value="dealer" {% if filters.seller_type == "dealer" %}selected{% endif %}>
+                                    {% if LANGUAGE_CODE == 'ar' %}معرض موثوق{% else %}Verified Dealer{% endif %}
+                                </option>
+                                <option value="private" {% if filters.seller_type == "private" %}selected{% endif %}>
+                                    {% if LANGUAGE_CODE == 'ar' %}بائع خاص{% else %}Private Seller{% endif %}
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn-primary">
+                            <i class="bi bi-funnel"></i>
+                            {% if LANGUAGE_CODE == 'ar' %}تطبيق الفلاتر{% else %}Apply Filters{% endif %}
+                        </button>
+                        <button type="button" class="btn-secondary" onclick="clearFilters()">
+                            <i class="bi bi-x-circle"></i>
+                            {% if LANGUAGE_CODE == 'ar' %}مسح الكل{% else %}Clear All{% endif %}
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Buying Guides Section -->
+                <div class="mt-4 p-3"
+                    style="background: var(--midnight-700); border-radius: var(--radius-md); border: 1px solid var(--amber-gold);">
+                    <h6 class="text-gold mb-3">
+                        💡 {% if LANGUAGE_CODE == 'ar' %}نصائح الشراء{% else %}Buying Tips{% endif %}
+                    </h6>
+                    <ul class="text-white mb-0" style="font-size: 0.875rem; padding-left: 1.25rem;">
+                        {% if LANGUAGE_CODE == 'ar' %}
+                        <li class="mb-2"><strong>افحص السيارة:</strong> تأكد من فحص السيارة عند ميكانيكي موثوق قبل
+                            الشراء.</li>
+                        <li class="mb-2"><strong>تحقق من الأوراق:</strong> راجع رخصة السيارة والفحص الدوري والتأمين.
+                        </li>
+                        <li class="mb-2"><strong>قارن الأسعار:</strong> ابحث عن سيارات مماثلة لتعرف السعر العادل.</li>
+                        <li class="mb-2"><strong>اسأل عن التاريخ:</strong> استفسر عن عدد الملاك السابقين والحوادث.</li>
+                        <li><strong>جرب القيادة:</strong> لا تشتري بدون تجربة القيادة في ظروف مختلفة.</li>
+                        {% else %}
+                        <li class="mb-2"><strong>Inspect the car:</strong> Have a trusted mechanic check the car before
+                            buying.</li>
+                        <li class="mb-2"><strong>Verify documents:</strong> Check the registration, inspection, and
+                            insurance papers.</li>
+                        <li class="mb-2"><strong>Compare prices:</strong> Research similar cars to know the fair market
+                            price.</li>
+                        <li class="mb-2"><strong>Ask about history:</strong> Inquire about previous owners and accident
+                            history.</li>
+                        <li><strong>Test drive:</strong> Never buy without testing the car in different conditions.</li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Section -->
+        <div class="col-lg-9">
+            <!-- Sort & Results Header -->
+            <div class="mb-4 d-flex justify-content-between align-items-center flex-wrap gap-3">
+                <div>
+                    <h5 class="text-white mb-0">
+                        {% if LANGUAGE_CODE == 'ar' %}
+                        {{ total_count }} سيارة متاحة
+                        {% else %}
+                        {{ total_count }} Cars Available
+                        {% endif %}
+                    </h5>
+                </div>
+                <div>
+                    <select name="sort" class="form-select" onchange="this.form.submit()" form="searchForm">
+                        <option value="newest" {% if filters.sort == "newest" %}selected{% endif %}>
+                            {% if LANGUAGE_CODE == 'ar' %}الأحدث{% else %}Newest First{% endif %}
+                        </option>
+                        <option value="price_low" {% if filters.sort == "price_low" %}selected{% endif %}>
+                            {% if LANGUAGE_CODE == 'ar' %}السعر: من الأقل للأعلى{% else %}Price: Low to High{% endif %}
+                        </option>
+                        <option value="price_high" {% if filters.sort == "price_high" %}selected{% endif %}>
+                            {% if LANGUAGE_CODE == 'ar' %}السعر: من الأعلى للأقل{% else %}Price: High to Low{% endif %}
+                        </option>
+                        <option value="mileage_low" {% if filters.sort == "mileage_low" %}selected{% endif %}>
+                            {% if LANGUAGE_CODE == 'ar' %}الممشى: الأقل{% else %}Mileage: Low to High{% endif %}
+                        </option>
+                        <option value="year_new" {% if filters.sort == "year_new" %}selected{% endif %}>
+                            {% if LANGUAGE_CODE == 'ar' %}السنة: الأحدث{% else %}Year: Newest{% endif %}
+                        </option>
+                        <option value="views" {% if filters.sort == "views" %}selected{% endif %}>
+                            {% if LANGUAGE_CODE == 'ar' %}الأكثر مشاهدة{% else %}Most Viewed{% endif %}
+                        </option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Listings Grid -->
+            <div class="row g-4">
+                {% if listings %}
+                {% for listing in listings %}
+                <div class="col-md-6 col-lg-6">
+                    <div class="listing-card h-100 p-2">
+                        <a href="{% url 'core:listing_detail' listing.pk %}" class="text-decoration-none">
+                            <!-- Image Container with zoom -->
+                            <div class="listing-card-image">
+                                {% if listing.image_main|has_file %}
+                                <img src="{{ listing.image_main.url }}" alt="{{ listing.trim.model.name_en }}"
+                                    loading="lazy">
+                                {% else %}
+                                <div class="w-100 h-100 d-flex align-items-center justify-content-center">
+                                    <i class="bi bi-car-front"
+                                        style="font-size: 4rem; color: var(--electric-blue); opacity: 0.3;"></i>
+                                </div>
+                                {% endif %}
+
+                                <!-- Price Badge -->
+                                <div class="listing-card-price" style="font-size: 1.25rem; font-weight: 700;">
+                                    {{ listing.price|intcomma }} <small style="font-size: 0.8rem;">{% if LANGUAGE_CODE == 'ar' %}ج.م{% else %}EGP{% endif %}</small>
+                                </div>
+
+                                <!-- Feature Badges (Top Left) -->
+                                <div class="position-absolute top-0 start-0 p-2 d-flex flex-column gap-1"
+                                    style="z-index: 10;">
+                                    {% if listing.trim.fuel_type == 'ELECTRIC' or listing.trim.fuel_type == 'HYBRID' or listing.trim.fuel_type == 'DIESEL' %}
+                                    <span class="badge bg-success bg-opacity-90 backdrop-blur shadow-sm">
+                                        <i class="bi bi-lightning-charge-fill"></i> {% trans "Fuel Saver" %}
+                                    </span>
+                                    {% endif %}
+
+                                    {% if listing.mileage < 60000 %} <span
+                                        class="badge bg-info bg-opacity-90 backdrop-blur shadow-sm">
+                                        <i class="bi bi-speedometer"></i> {% trans "Low Mileage" %}
+                                        </span>
+                                        {% endif %}
+                                </div>
+                            </div>
+
+                            <div class="listing-card-body p-4">
+                                <h5 class="listing-title mb-3" style="font-size: 1.25rem;">
+                                    {% if LANGUAGE_CODE == 'ar' %}
+                                    {{ listing.trim.model.make.name_ar }} {{ listing.trim.model.name_ar }}
+                                    {% else %}
+                                    {{ listing.trim.model.make.name_en }} {{ listing.trim.model.name_en }}
+                                    {% endif %}
+                                </h5>
+
+                                <div class="listing-meta mb-3">
+                                    <span class="listing-meta-item">
+                                        <i class="bi bi-calendar" style="color: var(--electric-blue);"></i> {{ listing.trim.year }}
+                                    </span>
+                                    <span class="listing-meta-item">
+                                        <i class="bi bi-speedometer2" style="color: var(--amber-gold);"></i> {{ listing.mileage|floatformat:0 }} {% if LANGUAGE_CODE == 'ar' %}كم{% else %}km{% endif %}
+                                    </span>
+                                    <span class="listing-meta-item">
+                                        <i class="bi bi-gear-wide-connected" style="color: var(--status-verified);"></i>
+                                        {{ listing.trim.transmission }}
+                                    </span>
+                                    <span class="listing-meta-item">
+                                        <i class="bi bi-fuel-pump" style="color: var(--status-excellent);"></i> {% if listing.trim.fuel_type == 'PETROL' %}{% trans "Petrol" %}{% elif listing.trim.fuel_type == 'DIESEL' %}{% trans "Diesel" %}{% elif listing.trim.fuel_type == 'ELECTRIC' %}{% trans "Electric" %}{% else %}{% trans "Hybrid" %}{% endif %}
+                                    </span>
+                                    <span class="listing-meta-item">
+                                        <i class="bi bi-geo-alt" style="color: var(--status-below);"></i> {{ listing.get_location_display }}
+                                    </span>
+                                </div>
+
+                                {% if listing.seller.is_dealer %}
+                                <div class="mt-3 pt-3 border-top border-secondary">
+                                    <span class="badge badge-verified w-100 justify-content-center">
+                                        <i class="bi bi-patch-check-fill"></i> {% trans "Verified Dealer" %}
+                                    </span>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+                {% else %}
+                <div class="col-12 text-center py-5">
+                    <i class="bi bi-search" style="font-size: 4rem; color: var(--gray-500);"></i>
+                    <h3 class="text-white mt-3">
+                        {% if LANGUAGE_CODE == 'ar' %}لم نجد نتائج{% else %}No results found{% endif %}
+                    </h3>
+                    <p class="text-gray-400">
+                        {% if LANGUAGE_CODE == 'ar' %}
+                        جرب تعديل الفلاتر أو البحث بكلمات أخرى
+                        {% else %}
+                        Try adjusting your filters or search with different keywords
+                        {% endif %}
+                    </p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function loadModelsForSearch(makeId) {
+        const modelSelect = document.getElementById('modelSelect');
+        modelSelect.innerHTML = '<option value="">{% if LANGUAGE_CODE == "ar"  %}جاري التحميل...{% else %}Loading...{% endif %}</option>';
+
+        if (!makeId) {
+            modelSelect.innerHTML = '<option value="">{% if LANGUAGE_CODE == "ar"  %}كل الموديلات{% else %}All Models{% endif %}</option>';
+            return;
+        }
+
+        const langCode = '{% if LANGUAGE_CODE == "ar"  %}ar{% else %}en{% endif %}';
+        fetch('/' + langCode + '/ajax/load-models/?make_id=' + makeId)
+            .then(response => response.json())
+            .then(data => {
+                modelSelect.innerHTML = '<option value="">{% if LANGUAGE_CODE == "ar"  %}كل الموديلات{% else %}All Models{% endif %}</option>';
+                data.forEach(model => {
+                    const option = document.createElement('option');
+                    option.value = model.id;
+                    option.textContent = model.name;
+                    modelSelect.appendChild(option);
+                });
+            });
+    }
+
+    function setPrice(min, max) {
+        document.querySelector('input[name="min_price"]').value = min || '';
+        document.querySelector('input[name="max_price"]').value = max || '';
+    }
+
+    function setMileage(value) {
+        document.querySelector('input[name="max_mileage"]').value = value;
+    }
+
+    function clearFilters() {
+        window.location.href = search" %}';
+    }
+</script>
+{% endblock %}

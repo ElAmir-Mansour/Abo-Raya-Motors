@@ -1,0 +1,445 @@
+{% load static %}
+{% load i18n %}
+<!DOCTYPE html>
+<html lang="{{ LANGUAGE_CODE }}" dir="{% if LANGUAGE_CODE == 'ar' %}rtl{% else %}ltr{% endif %}">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% trans "Login" %} - Abo Raaya Motors</title>
+
+    <!-- Google Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=Roboto:wght@400;500;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{% static 'css/main.css' %}">
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .auth-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            height: 100vh;
+        }
+
+        /* Left Side: Hero Image */
+        .auth-hero {
+            position: relative;
+            background: linear-gradient(135deg, var(--midnight-900) 0%, var(--midnight-800) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .auth-hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('{% static "images/auth_hero_car.png" %}') center/cover;
+            opacity: 0.6;
+            z-index: 1;
+        }
+
+        .auth-hero::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg,
+                    rgba(0, 212, 255, 0.1) 0%,
+                    rgba(255, 176, 32, 0.1) 100%);
+            z-index: 2;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 3;
+            text-align: center;
+            padding: 3rem;
+            max-width: 600px;
+        }
+
+        .hero-logo {
+            height: 80px;
+            margin-bottom: 2rem;
+            filter: drop-shadow(0 4px 20px rgba(0, 212, 255, 0.3));
+        }
+
+        .hero-title {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, var(--white) 0%, var(--electric-blue) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-subtitle {
+            font-size: 1.25rem;
+            color: var(--white);
+            line-height: 1.6;
+        }
+
+        /* Right Side: Auth Form */
+        .auth-form-side {
+            background: var(--midnight-900);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 3rem;
+            overflow-y: auto;
+        }
+
+        .auth-form-container {
+            width: 100%;
+            max-width: 480px;
+        }
+
+        .auth-header {
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .auth-header h2 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--white);
+        }
+
+        .auth-header p {
+            color: var(--gray-300);
+            font-size: 1rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--white);
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 1rem;
+            background: var(--midnight-700);
+            border: 2px solid var(--midnight-600);
+            border-radius: var(--radius-md);
+            color: var(--white);
+            font-size: 1rem;
+            transition: all var(--transition-base);
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--electric-blue);
+            background: var(--midnight-800);
+            box-shadow: 0 0 0 4px var(--electric-blue-light);
+        }
+
+        .form-control::placeholder {
+            color: var(--gray-400);
+        }
+
+        .social-login {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .btn-google {
+            background: white;
+            color: #333;
+            border: 2px solid var(--midnight-600);
+            padding: 0.875rem 1rem;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition-base);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn-google:hover {
+            background: #f8f9fa;
+            border-color: var(--electric-blue);
+            transform: translateY(-2px);
+        }
+
+        .btn-facebook {
+            background: #1877F2;
+            color: white;
+            border: none;
+            padding: 0.875rem 1rem;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition-base);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn-facebook:hover {
+            background: #166FE5;
+            transform: translateY(-2px);
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .divider-line {
+            flex: 1;
+            height: 1px;
+            background: var(--midnight-600);
+        }
+
+        .divider-text {
+            color: var(--white);
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .language-switch {
+            position: fixed;
+            top: 2rem;
+            right: 2rem;
+            z-index: 100;
+        }
+
+        .language-switch button {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            color: var(--white);
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--radius-full);
+            cursor: pointer;
+            transition: all var(--transition-base);
+            font-weight: 600;
+        }
+
+        .language-switch button:hover {
+            border-color: var(--electric-blue);
+            background: var(--electric-blue-light);
+        }
+
+        .error-message {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid var(--status-below);
+            color: #ff6b6b;
+            padding: 1rem;
+            border-radius: var(--radius-md);
+            margin-bottom: 1.5rem;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .text-link {
+            color: var(--electric-blue);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .text-link:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 968px) {
+            .auth-container {
+                grid-template-columns: 1fr;
+            }
+
+            .auth-hero {
+                display: none;
+            }
+
+            .social-login {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body lang="{{ LANGUAGE_CODE }}">
+    <!-- Language Switcher -->
+    <div class="language-switch">
+        <button type="button"
+            onclick="window.location.href='{% if LANGUAGE_CODE == 'ar' %}/en/login/{% else %}/ar/login/{% endif %}'">
+            {% if LANGUAGE_CODE == 'ar' %}🇬🇧 English{% else %}🇪🇬 العربية{% endif %}
+        </button>
+    </div>
+
+    <div class="auth-container">
+        <!-- Left Side: Hero -->
+        <div class="auth-hero">
+            <div class="hero-content">
+                <img src="{% static 'images/logo.png' %}" alt="Abo Raaya Motors" class="hero-logo">
+                <h1 class="hero-title">
+                    {% if LANGUAGE_CODE == 'ar' %}
+                    سوق السيارات الأول في مصر
+                    {% else %}
+                    Egypt's Premier Car Marketplace
+                    {% endif %}
+                </h1>
+                <p class="hero-subtitle">
+                    {% if LANGUAGE_CODE == 'ar' %}
+                    ابحث، اشتري، وبيع سيارتك بكل ثقة وسهولة
+                    {% else %}
+                    Search, buy, and sell cars with confidence
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+
+        <!-- Right Side: Auth Form -->
+        <div class="auth-form-side">
+            <div class="auth-form-container">
+                <div class="auth-header">
+                    <h2>
+                        {% if LANGUAGE_CODE == 'ar' %}
+                        مرحباً بك
+                        {% else %}
+                        Welcome Back
+                        {% endif %}
+                    </h2>
+                    <p>
+                        {% if LANGUAGE_CODE == 'ar' %}
+                        سجل الدخول إلى حسابك
+                        {% else %}
+                        Sign in to your account
+                        {% endif %}
+                    </p>
+                </div>
+
+                {% if error %}
+                <div class="error-message">
+                    {{ error }}
+                </div>
+                {% endif %}
+
+                <!-- Social Login -->
+                {% load socialaccount %}
+                <div class="social-login">
+                    <a href="{% provider_login_url 'google' %}" class="btn-google" style="width: 100%;">
+                        <svg width="18" height="18" viewBox="0 0 18 18">
+                            <path fill="#4285F4"
+                                d="M16.51 8H8.98v3h4.3c-.18 1-.74 1.48-1.6 2.04v2.01h2.6a7.8 7.8 0 0 0 2.38-5.88c0-.57-.05-.66-.15-1.18z">
+                            </path>
+                            <path fill="#34A853"
+                                d="M8.98 17c2.16 0 3.97-.72 5.3-1.94l-2.6-2a4.8 4.8 0 0 1-7.18-2.54H1.83v2.07A8 8 0 0 0 8.98 17z">
+                            </path>
+                            <path fill="#FBBC05"
+                                d="M4.5 10.52a4.8 4.8 0 0 1 0-3.04V5.41H1.83a8 8 0 0 0 0 7.18l2.67-2.07z"></path>
+                            <path fill="#EA4335"
+                                d="M8.98 4.18c1.17 0 2.23.4 3.06 1.2l2.3-2.3A8 8 0 0 0 1.83 5.4L4.5 7.49a4.77 4.77 0 0 1 4.48-3.3z">
+                            </path>
+                        </svg>
+                        {% if LANGUAGE_CODE == 'ar' %}تسجيل الدخول بجوجل{% else %}Sign in with Google{% endif %}
+                    </a>
+
+                    <!-- Facebook button hidden until API keys are added
+                    <a href="{% provider_login_url 'facebook' %}" class="btn-facebook">
+                        <i class="bi bi-facebook"></i>
+                        {% if LANGUAGE_CODE == 'ar' %}تسجيل بفيسبوك{% else %}Facebook{% endif %}
+                    </a>
+                    -->
+                </div>
+
+                <div class="divider">
+                    <div class="divider-line"></div>
+                    <span class="divider-text">
+                        {% if LANGUAGE_CODE == 'ar' %}أو{% else %}OR{% endif %}
+                    </span>
+                    <div class="divider-line"></div>
+                </div>
+
+                <!-- Email Login Form -->
+                <form method="POST" action="{% url 'core:login' %}">
+                    {% csrf_token %}
+
+                    <div class="form-group">
+                        <label for="email">
+                            {% if LANGUAGE_CODE == 'ar' %}البريد الإلكتروني{% else %}Email Address{% endif %}
+                        </label>
+                        <input type="email" class="form-control" id="email" name="email" required
+                            placeholder="example@email.com">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">
+                            {% if LANGUAGE_CODE == 'ar' %}كلمة المرور{% else %}Password{% endif %}
+                        </label>
+                        <input type="password" class="form-control" id="password" name="password" required
+                            placeholder="••••••••">
+                    </div>
+
+                    <button type="submit" class="btn-primary w-100 mb-3" style="width: 100%;">
+                        <i class="bi bi-box-arrow-in-right"></i>
+                        {% if LANGUAGE_CODE == 'ar' %}تسجيل الدخول{% else %}Sign In{% endif %}
+                    </button>
+                </form>
+
+                <div class="text-center">
+                    <p style="color: var(--white); font-size: 0.875rem;">
+                        {% if LANGUAGE_CODE == 'ar' %}
+                        ليس لديك حساب؟ <a href="{% url 'core:register' %}" class="text-link">أنشئ حساب الآن</a>
+                        {% else %}
+                        Don't have an account? <a href="{% url 'core:register' %}" class="text-link">Sign up now</a>
+                        {% endif %}
+                    </p>
+                    <p style="color: var(--gray-300); font-size: 0.875rem;">
+                        <a href="{% url 'password_reset' %}" class="text-link">
+                            {% if LANGUAGE_CODE == 'ar' %}نسيت كلمة المرور؟{% else %}Forgot your password?{% endif %}
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function loginWithGoogle() {
+            alert('{% if LANGUAGE_CODE == 'ar' %}قريباً: تسجيل الدخول بواسطة جوجل{% else %}Coming soon: Google Login{% endif %}');
+            // In production: window.location.href = '/auth/google/';
+        }
+
+        function loginWithFacebook() {
+            alert('{% if LANGUAGE_CODE == 'ar' %}قريباً: تسجيل الدخول بواسطة فيسبوك{% else %}Coming soon: Facebook Login{% endif %}');
+            // In production: window.location.href = '/auth/facebook/';
+        }
+    </script>
+</body>
+
+</html>
