@@ -318,3 +318,32 @@ def edit_profile(request):
         'form': form
     }
     return render(request, 'edit_profile.html', context)
+
+def compare_listings(request):
+    """View to compare up to 3 cars side-by-side"""
+    ids_param = request.GET.get('ids', '')
+    
+    listings = []
+    if ids_param:
+        try:
+            # Parse IDs and filter empty strings
+            listing_ids = [int(id) for id in ids_param.split(',') if id.strip().isdigit()]
+            # Limit to 3 cars
+            listing_ids = listing_ids[:3]
+            
+            if listing_ids:
+                # Fetch listings preserving order is tricky in pure SQL without extra logic,
+                # but for comparison, standard retrieval is usually fine.
+                # We select related fields to minimize queries.
+                listings = Listing.objects.filter(
+                    id__in=listing_ids, 
+                    status='ACTIVE'
+                ).select_related('trim__model__make')
+                
+        except (ValueError, TypeError):
+            pass
+            
+    context = {
+        'listings': listings
+    }
+    return render(request, 'compare.html', context)

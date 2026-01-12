@@ -1,6 +1,4 @@
 {% extends 'base.html' %}
-{% load static %}
-{% load i18n %}
 {% load static i18n humanize core_filters %}
 
 
@@ -41,7 +39,7 @@
                             {% if LANGUAGE_CODE == 'ar' %}بحث بالكلمة المفتاحية{% else %}Keyword Search{% endif %}
                         </label>
                         <input type="text" name="q" class="form-control"
-                            placeholder="{% if LANGUAGE_CODE == 'ar'  %}مثال: تويوتا كامري{% else %}e.g., Toyota Camry{% endif %}"
+                            placeholder="{% if LANGUAGE_CODE == 'ar' %}مثال: تويوتا كامري{% else %}e.g., Toyota Camry{% endif %}"
                             value="{{ filters.q }}">
                     </div>
 
@@ -62,7 +60,11 @@
                             <option value="">{% if LANGUAGE_CODE == 'ar' %}كل الماركات{% else %}All Makes{% endif %}
                             </option>
                             {% for make in makes %}
-                            <option value="{{ make.id }}" {% if filters.make == make.id|stringformat:"s" %}selected{% endif %}>{% if LANGUAGE_CODE == 'ar' %}{{ make.name_ar }}{% else %}{{ make.name_en }}{% endif %}</option>
+                            {% with make_id=make.id|stringformat:"s" %}
+                            <option value="{{ make.id }}" {% if filters.make == make_id %}selected{% endif %}>
+                                {% if LANGUAGE_CODE == 'ar' %}{{ make.name_ar }}{% else %}{{ make.name_en }}{% endif %}
+                            </option>
+                            {% endwith %}
                             {% endfor %}
                         </select>
                     </div>
@@ -75,7 +77,11 @@
                             <option value="">{% if LANGUAGE_CODE == 'ar' %}كل الموديلات{% else %}All Models{% endif %}
                             </option>
                             {% for model in models %}
-                            <option value="{{ model.id }}" {% if filters.model == model.id|stringformat:"s" %}selected{% endif %}>{% if LANGUAGE_CODE == 'ar' %}{{ model.name_ar }}{% else %}{{ model.name_en }}{% endif %}</option>
+                            {% with model_id=model.id|stringformat:"s" %}
+                            <option value="{{ model.id }}" {% if filters.model == model_id %}selected{% endif %}>
+                                {% if LANGUAGE_CODE == 'ar' %}{{ model.name_ar }}{% else %}{{ model.name_en }}{% endif %}
+                            </option>
+                            {% endwith %}
                             {% endfor %}
                         </select>
                     </div>
@@ -88,12 +94,12 @@
                         <div class="row g-2">
                             <div class="col-6">
                                 <input type="number" name="min_price" class="form-control"
-                                    placeholder="{% if LANGUAGE_CODE == 'ar'  %}من{% else %}Min{% endif %}"
+                                    placeholder="{% if LANGUAGE_CODE == 'ar' %}من{% else %}Min{% endif %}"
                                     value="{{ filters.min_price }}">
                             </div>
                             <div class="col-6">
                                 <input type="number" name="max_price" class="form-control"
-                                    placeholder="{% if LANGUAGE_CODE == 'ar'  %}إلى{% else %}Max{% endif %}"
+                                    placeholder="{% if LANGUAGE_CODE == 'ar' %}إلى{% else %}Max{% endif %}"
                                     value="{{ filters.max_price }}">
                             </div>
                         </div>
@@ -170,7 +176,6 @@
                         </div>
                     </div>
 
-                    <!-- Location -->
                     <div class="mb-3">
                         <label class="form-label text-white">
                             {% if LANGUAGE_CODE == 'ar' %}المحافظة{% else %}Governorate{% endif %}
@@ -243,7 +248,7 @@
                                 {% if LANGUAGE_CODE == 'ar' %}الممشى (كحد أقصى){% else %}Max Mileage (km){% endif %}
                             </label>
                             <input type="number" name="max_mileage" class="form-control"
-                                placeholder="{% if LANGUAGE_CODE == 'ar'  %}مثال: 100000{% else %}e.g., 100000{% endif %}"
+                                placeholder="{% if LANGUAGE_CODE == 'ar' %}مثال: 100000{% else %}e.g., 100000{% endif %}"
                                 value="{{ filters.max_mileage }}">
                             <div class="d-flex flex-wrap gap-1 mt-2">
                                 <button type="button" class="btn btn-sm btn-outline-light"
@@ -386,12 +391,12 @@
             <div class="row g-4">
                 {% if listings %}
                 {% for listing in listings %}
-                <div class="col-md-6 col-lg-6">
+                <div class="col-md-6 col-lg-4">
                     <div class="listing-card h-100 p-2">
                         <a href="{% url 'core:listing_detail' listing.pk %}" class="text-decoration-none">
                             <!-- Image Container with zoom -->
                             <div class="listing-card-image">
-                                {% if listing.image_main|has_file %}
+                                {% if listing.image_main %}
                                 <img src="{{ listing.image_main.url }}" alt="{{ listing.trim.model.name_en }}"
                                     loading="lazy">
                                 {% else %}
@@ -403,17 +408,21 @@
 
                                 <!-- Price Badge -->
                                 <div class="listing-card-price" style="font-size: 1.25rem; font-weight: 700;">
-                                    {{ listing.price|intcomma }} <small style="font-size: 0.8rem;">{% if LANGUAGE_CODE == 'ar' %}ج.م{% else %}EGP{% endif %}</small>
+                                    {{ listing.price|intcomma }} <small style="font-size: 0.8rem;">
+                                        {% if LANGUAGE_CODE == 'ar' %}ج.م{% else %}EGP{% endif %}
+                                    </small>
                                 </div>
 
                                 <!-- Feature Badges (Top Left) -->
                                 <div class="position-absolute top-0 start-0 p-2 d-flex flex-column gap-1"
                                     style="z-index: 10;">
-                                    {% if listing.trim.fuel_type == 'ELECTRIC' or listing.trim.fuel_type == 'HYBRID' or listing.trim.fuel_type == 'DIESEL' %}
+                                    {% with ftype=listing.trim.fuel_type %}
+                                    {% if ftype == 'ELECTRIC' or ftype == 'HYBRID' or ftype == 'DIESEL' %}
                                     <span class="badge bg-success bg-opacity-90 backdrop-blur shadow-sm">
                                         <i class="bi bi-lightning-charge-fill"></i> {% trans "Fuel Saver" %}
                                     </span>
                                     {% endif %}
+                                    {% endwith %}
 
                                     {% if listing.mileage < 60000 %} <span
                                         class="badge bg-info bg-opacity-90 backdrop-blur shadow-sm">
@@ -421,6 +430,16 @@
                                         </span>
                                         {% endif %}
                                 </div>
+
+                                <!-- Compare Checkbox (Top Right) -->
+                                <div class="position-absolute top-0 end-0 p-2" style="z-index: 10;">
+                                    <div class="form-check">
+                                        <input class="form-check-input compare-checkbox shadow-sm" type="checkbox"
+                                            data-id="{{ listing.id }}"
+                                            style="width: 1.5em; height: 1.5em; cursor: pointer; border: 2px solid white;">
+                                    </div>
+                                </div>
+
                             </div>
 
                             <div class="listing-card-body p-4">
@@ -434,17 +453,27 @@
 
                                 <div class="listing-meta mb-3">
                                     <span class="listing-meta-item">
-                                        <i class="bi bi-calendar" style="color: var(--electric-blue);"></i> {{ listing.trim.year }}
+                                        <i class="bi bi-calendar" style="color: var(--electric-blue);"></i> {{ listing.trim.year|noloc }}
                                     </span>
                                     <span class="listing-meta-item">
-                                        <i class="bi bi-speedometer2" style="color: var(--amber-gold);"></i> {{ listing.mileage|floatformat:0 }} {% if LANGUAGE_CODE == 'ar' %}كم{% else %}km{% endif %}
+                                        <i class="bi bi-speedometer2" style="color: var(--amber-gold);"></i>
+                                        {{ listing.mileage|floatformat:0 }} {% if LANGUAGE_CODE == 'ar' %}كم{% else %}km{% endif %}
                                     </span>
                                     <span class="listing-meta-item">
                                         <i class="bi bi-gear-wide-connected" style="color: var(--status-verified);"></i>
                                         {{ listing.trim.transmission }}
                                     </span>
                                     <span class="listing-meta-item">
-                                        <i class="bi bi-fuel-pump" style="color: var(--status-excellent);"></i> {% if listing.trim.fuel_type == 'PETROL' %}{% trans "Petrol" %}{% elif listing.trim.fuel_type == 'DIESEL' %}{% trans "Diesel" %}{% elif listing.trim.fuel_type == 'ELECTRIC' %}{% trans "Electric" %}{% else %}{% trans "Hybrid" %}{% endif %}
+                                        <i class="bi bi-fuel-pump" style="color: var(--status-excellent);"></i>
+                                        {% if listing.trim.fuel_type == 'PETROL' %}
+                                        {% trans "Petrol" %}
+                                        {% elif listing.trim.fuel_type == 'DIESEL' %}
+                                        {% trans "Diesel" %}
+                                        {% elif listing.trim.fuel_type == 'ELECTRIC' %}
+                                        {% trans "Electric" %}
+                                        {% else %}
+                                        {% trans "Hybrid" %}
+                                        {% endif %}
                                     </span>
                                     <span class="listing-meta-item">
                                         <i class="bi bi-geo-alt" style="color: var(--status-below);"></i> {{ listing.get_location_display }}
@@ -486,18 +515,18 @@
 <script>
     function loadModelsForSearch(makeId) {
         const modelSelect = document.getElementById('modelSelect');
-        modelSelect.innerHTML = '<option value="">{% if LANGUAGE_CODE == "ar"  %}جاري التحميل...{% else %}Loading...{% endif %}</option>';
+        modelSelect.innerHTML = '<option value="">{% if LANGUAGE_CODE == "ar" %}جاري التحميل...{% else %}Loading...{% endif %}</option>';
 
         if (!makeId) {
-            modelSelect.innerHTML = '<option value="">{% if LANGUAGE_CODE == "ar"  %}كل الموديلات{% else %}All Models{% endif %}</option>';
+            modelSelect.innerHTML = '<option value="">{% if LANGUAGE_CODE == "ar" %}كل الموديلات{% else %}All Models{% endif %}</option>';
             return;
         }
 
-        const langCode = '{% if LANGUAGE_CODE == "ar"  %}ar{% else %}en{% endif %}';
+        const langCode = '{% if LANGUAGE_CODE == "ar" %}ar{% else %}en{% endif %}';
         fetch('/' + langCode + '/ajax/load-models/?make_id=' + makeId)
             .then(response => response.json())
             .then(data => {
-                modelSelect.innerHTML = '<option value="">{% if LANGUAGE_CODE == "ar"  %}كل الموديلات{% else %}All Models{% endif %}</option>';
+                modelSelect.innerHTML = '<option value="">{% if LANGUAGE_CODE == "ar" %}كل الموديلات{% else %}All Models{% endif %}</option>';
                 data.forEach(model => {
                     const option = document.createElement('option');
                     option.value = model.id;
@@ -517,7 +546,7 @@
     }
 
     function clearFilters() {
-        window.location.href = search" %}';
+        window.location.href = "{% url 'core:search' %}";
     }
 </script>
 {% endblock %}

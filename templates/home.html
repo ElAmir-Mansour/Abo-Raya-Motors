@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load static i18n humanize %}
+{% load static i18n humanize core_filters %}
 
 {% block title %}{% trans "Home" %} - Abo Raaya Motors{% endblock %}
 
@@ -100,15 +100,21 @@
         <div class="row text-center">
             <div class="col-4">
                 <div style="font-size: 2rem; font-weight: 800; color: var(--electric-blue);">500+</div>
-                <div style="color: var(--gray-400); font-size: 0.875rem;">{% if LANGUAGE_CODE == 'ar' %}سيارة معروضة{% else %}Cars Listed{% endif %}</div>
+                <div style="color: var(--gray-400); font-size: 0.875rem;">
+                    {% if LANGUAGE_CODE == 'ar' %}سيارة معروضة{% else %}Cars Listed{% endif %}
+                </div>
             </div>
             <div class="col-4">
                 <div style="font-size: 2rem; font-weight: 800; color: var(--amber-gold);">50+</div>
-                <div style="color: var(--gray-400); font-size: 0.875rem;">{% if LANGUAGE_CODE == 'ar' %}معرض موثوق{% else %}Verified Dealers{% endif %}</div>
+                <div style="color: var(--gray-400); font-size: 0.875rem;">
+                    {% if LANGUAGE_CODE == 'ar' %}معرض موثوق{% else %}Verified Dealers{% endif %}
+                </div>
             </div>
             <div class="col-4">
                 <div style="font-size: 2rem; font-weight: 800; color: var(--status-excellent);">1000+</div>
-                <div style="color: var(--gray-400); font-size: 0.875rem;">{% if LANGUAGE_CODE == 'ar' %}مستخدم نشط{% else %}Active Users{% endif %}</div>
+                <div style="color: var(--gray-400); font-size: 0.875rem;">
+                    {% if LANGUAGE_CODE == 'ar' %}مستخدم نشط{% else %}Active Users{% endif %}
+                </div>
             </div>
         </div>
     </div>
@@ -137,19 +143,26 @@
                             </div>
                             {% endif %}
 
-                            <!-- Price Badge -->
                             <div class="listing-card-price" style="font-size: 1.25rem; font-weight: 700;">
-                                {{ listing.price|intcomma }} <small style="font-size: 0.8rem;">{% if LANGUAGE_CODE == 'ar' %}ج.م{% else %}EGP{% endif %}</small>
+                                {{ listing.price|intcomma }} <small style="font-size: 0.8rem;">
+                                    {% if LANGUAGE_CODE == 'ar' %}
+                                    ج.م
+                                    {% else %}
+                                    EGP
+                                    {% endif %}
+                                </small>
                             </div>
 
                             <!-- Feature Badges (Top Left) -->
                             <div class="position-absolute top-0 start-0 p-2 d-flex flex-column gap-1"
                                 style="z-index: 10;">
-                                {% if listing.trim.fuel_type == 'ELECTRIC' or listing.trim.fuel_type == 'HYBRID' or listing.trim.fuel_type == 'DIESEL' %}
+                                {% with ftype=listing.trim.fuel_type %}
+                                {% if ftype == 'ELECTRIC' or ftype == 'HYBRID' or ftype == 'DIESEL' %}
                                 <span class="badge bg-success bg-opacity-90 backdrop-blur shadow-sm">
                                     <i class="bi bi-lightning-charge-fill"></i> {% trans "Fuel Saver" %}
                                 </span>
                                 {% endif %}
+                                {% endwith %}
 
                                 {% if listing.mileage < 60000 %} <span
                                     class="badge bg-info bg-opacity-90 backdrop-blur shadow-sm">
@@ -158,10 +171,22 @@
                                     {% endif %}
                             </div>
 
+                            <!-- Compare Checkbox (Top Right) -->
+                            <div class="position-absolute top-0 end-0 p-2" style="z-index: 10;">
+                                <div class="form-check">
+                                    <input class="form-check-input compare-checkbox shadow-sm" type="checkbox"
+                                        data-id="{{ listing.id }}"
+                                        style="width: 1.5em; height: 1.5em; cursor: pointer; border: 2px solid white;">
+                                </div>
+                            </div>
+
+
                             <!-- Featured Ribbon -->
+                            {% if listing.is_featured %}
                             <div class="listing-card-featured">
                                 <i class="bi bi-star-fill"></i> {% trans "Featured" %}
                             </div>
+                            {% endif %}
                         </div>
 
                         <div class="listing-card-body p-4">
@@ -175,16 +200,31 @@
 
                             <div class="listing-meta mb-3">
                                 <span class="listing-meta-item">
-                                    <i class="bi bi-calendar" style="color: var(--electric-blue);"></i> {{ listing.trim.year }}
+                                    <i class="bi bi-calendar" style="color: var(--electric-blue);"></i> {{ listing.trim.year|noloc }}
                                 </span>
                                 <span class="listing-meta-item">
-                                    <i class="bi bi-speedometer2" style="color: var(--amber-gold);"></i> {{ listing.mileage|floatformat:0 }} {% if LANGUAGE_CODE == 'ar' %}كم{% else %}km{% endif %}
+                                    <i class="bi bi-speedometer2" style="color: var(--amber-gold);"></i>
+                                    {{ listing.mileage|floatformat:0 }}
+                                    {% if LANGUAGE_CODE == 'ar' %}
+                                    كم
+                                    {% else %}
+                                    km
+                                    {% endif %}
                                 </span>
                                 <span class="listing-meta-item">
                                     <i class="bi bi-gear-wide-connected" style="color: var(--status-verified);"></i> {{ listing.trim.transmission }}
                                 </span>
                                 <span class="listing-meta-item">
-                                    <i class="bi bi-fuel-pump" style="color: var(--status-excellent);"></i> {% if listing.trim.fuel_type == 'PETROL' %}{% trans "Petrol" %}{% elif listing.trim.fuel_type == 'DIESEL' %}{% trans "Diesel" %}{% elif listing.trim.fuel_type == 'ELECTRIC' %}{% trans "Electric" %}{% else %}{% trans "Hybrid" %}{% endif %}
+                                    <i class="bi bi-fuel-pump" style="color: var(--status-excellent);"></i>
+                                    {% if listing.trim.fuel_type == 'PETROL' %}
+                                    {% trans "Petrol" %}
+                                    {% elif listing.trim.fuel_type == 'DIESEL' %}
+                                    {% trans "Diesel" %}
+                                    {% elif listing.trim.fuel_type == 'ELECTRIC' %}
+                                    {% trans "Electric" %}
+                                    {% else %}
+                                    {% trans "Hybrid" %}
+                                    {% endif %}
                                 </span>
                                 <span class="listing-meta-item">
                                     <i class="bi bi-geo-alt" style="color: var(--status-below);"></i> {{ listing.get_location_display }}

@@ -183,9 +183,27 @@
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
+    <!-- Floating Compare Bar -->
+    <div id="compare-bar" class="fixed-bottom d-none p-3 glass-card m-3 border-gold"
+        style="z-index: 1050; max-width: 400px; left: auto; right: 20px;">
+        <div class="d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center">
+                <i class="bi bi-arrow-left-right text-gold me-2 fs-4"></i>
+                <span class="text-white fw-bold">
+                    <span id="compare-count" class="text-gold">0</span>
+                    {% if LANGUAGE_CODE == 'ar' %}سيارات مختارة{% else %}Cars Selected{% endif %}
+                </span>
+            </div>
+            <button id="compare-btn" class="btn btn-sm btn-primary">
+                {% if LANGUAGE_CODE == 'ar' %}قارن الآن{% else %}Compare Now{% endif %}
+            </button>
+        </div>
+    </div>
+
     <!-- Custom JS -->
     <script src="{% static 'js/animations.js' %}"></script>
     <script src="{% static 'js/dropdowns.js' %}"></script>
+    <script src="{% static 'js/compare.js' %}"></script>
 
     {% block extra_js %}{% endblock %}
 </body>

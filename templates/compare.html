@@ -1,0 +1,206 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% load humanize %}
+{% load static %}
+
+{% block title %}{% trans "Compare Vehicles" %}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h2 mb-0">{% trans "Compare Vehicles" %}</h1>
+        <a href="{% url 'core:search' %}" class="btn btn-outline-primary">
+            <i class="bi bi-plus-lg me-1"></i> {% trans "Add Car" %}
+        </a>
+    </div>
+
+    {% if listings %}
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th style="width: 200px;">{% trans "Features" %}</th>
+                    {% for listing in listings %}
+                    <th class="text-center" style="min-width: 250px;">
+                        <div class="position-relative">
+                            <button
+                                class="btn btn-sm btn-icon btn-light position-absolute top-0 end-0 m-1 remove-compare"
+                                data-id="{{ listing.id }}" title="{% trans 'Remove' %}">
+                                <i class="bi bi-x"></i>
+                            </button>
+                            {% if listing.image_main %}
+                            <img src="{{ listing.image_main.url }}" alt="{{ listing.trim }}"
+                                class="img-fluid rounded mb-2" style="height: 150px; object-fit: cover;">
+                            {% else %}
+                            <div class="d-flex align-items-center justify-content-center rounded mb-2"
+                                style="height: 150px; background: #f0f0f0;">
+                                <i class="bi bi-car-front" style="font-size: 3rem; opacity: 0.3;"></i>
+                            </div>
+                            {% endif %}
+                            <h5 class="h6 mb-1 text-primary">{{ listing.trim.model.make.name_en }} {{ listing.trim.model.name_en }}</h5>
+                            <p class="small text-muted mb-0">{{ listing.trim.name }}</p>
+                            <div class="fw-bold fs-5 mt-2 text-dark">{{ listing.price|intcomma }} {% trans "EGP" %}
+                            </div>
+                        </div>
+                    </th>
+                    {% endfor %}
+
+                    {# Fill empty slots placeholders if less than 3 #}
+                    {% if listings|length < 3 %} <th class="text-center bg-light text-muted" style="min-width: 250px;">
+                        <div class="py-5">
+                            <i class="bi bi-car-front display-4 opacity-25"></i>
+                            <p class="mt-3">{% trans "Empty Slot" %}</p>
+                        </div>
+                        </th>
+                        {% endif %}
+                        {% if listings|length < 2 %} <th class="text-center bg-light text-muted"
+                            style="min-width: 250px;">
+                            <div class="py-5">
+                                <i class="bi bi-car-front display-4 opacity-25"></i>
+                                <p class="mt-3">{% trans "Empty Slot" %}</p>
+                            </div>
+                            </th>
+                            {% endif %}
+                </tr>
+            </thead>
+            <tbody>
+                {# Row: Year #}
+                <tr>
+                    <th class="bg-light">{% trans "Year" %}</th>
+                    {% for listing in listings %}
+                    <td class="text-center">{{ listing.trim.year }}</td>
+                    {% endfor %}
+                    {% if listings|length < 3 %}<td>
+                        </td>{% endif %}{% if listings|length < 2 %}<td>
+                            </td>{% endif %}
+                </tr>
+
+                {# Row: Mileage #}
+                <tr>
+                    <th class="bg-light">{% trans "Odometer" %}</th>
+                    {% for listing in listings %}
+                    <td class="text-center">{{ listing.odometer|intcomma }} {% trans "km" %}</td>
+                    {% endfor %}
+                    {% if listings|length < 3 %}<td>
+                        </td>{% endif %}{% if listings|length < 2 %}<td>
+                            </td>{% endif %}
+                </tr>
+
+                {# Row: Transmission #}
+                <tr>
+                    <th class="bg-light">{% trans "Transmission" %}</th>
+                    {% for listing in listings %}
+                    <td class="text-center">{{ listing.trim.get_transmission_display }}</td>
+                    {% endfor %}
+                    {% if listings|length < 3 %}<td>
+                        </td>{% endif %}{% if listings|length < 2 %}<td>
+                            </td>{% endif %}
+                </tr>
+
+                {# Row: Fuel Type #}
+                <tr>
+                    <th class="bg-light">{% trans "Fuel" %}</th>
+                    {% for listing in listings %}
+                    <td class="text-center">
+                        <span class="badge bg-secondary-subtle text-secondary-emphasis rounded-pill">
+                            {{ listing.trim.get_fuel_type_display }}
+                        </span>
+                    </td>
+                    {% endfor %}
+                    {% if listings|length < 3 %}<td>
+                        </td>{% endif %}{% if listings|length < 2 %}<td>
+                            </td>{% endif %}
+                </tr>
+
+                {# Row: Engine #}
+                <tr>
+                    <th class="bg-light">{% trans "Engine" %}</th>
+                    {% for listing in listings %}
+                    <td class="text-center">{{ listing.trim.engine_cc }} cc</td>
+                    {% endfor %}
+                    {% if listings|length < 3 %}<td>
+                        </td>{% endif %}{% if listings|length < 2 %}<td>
+                            </td>{% endif %}
+                </tr>
+
+                {# Row: Horsepower #}
+                <tr>
+                    <th class="bg-light">{% trans "Power" %}</th>
+                    {% for listing in listings %}
+                    <td class="text-center">{{ listing.trim.horsepower }} {% trans "HP" %}</td>
+                    {% endfor %}
+                    {% if listings|length < 3 %}<td>
+                        </td>{% endif %}{% if listings|length < 2 %}<td>
+                            </td>{% endif %}
+                </tr>
+
+                {# Row: Location #}
+                <tr>
+                    <th class="bg-light">{% trans "Location" %}</th>
+                    {% for listing in listings %}
+                    <td class="text-center listing-location">
+                        <i class="bi bi-geo-alt me-1"></i> {{ listing.get_location_display }}
+                    </td>
+                    {% endfor %}
+                    {% if listings|length < 3 %}<td>
+                        </td>{% endif %}{% if listings|length < 2 %}<td>
+                            </td>{% endif %}
+                </tr>
+
+                {# Row: Actions #}
+                <tr>
+                    <th class="bg-light"></th>
+                    {% for listing in listings %}
+                    <td class="text-center">
+                        <a href="{% url 'core:listing_detail' listing.id %}" class="btn btn-primary w-100">
+                            {% trans "View Details" %}
+                        </a>
+                    </td>
+                    {% endfor %}
+                    {% if listings|length < 3 %}<td>
+                        </td>{% endif %}{% if listings|length < 2 %}<td>
+                            </td>{% endif %}
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="text-center py-5">
+        <div class="mb-3">
+            <i class="bi bi-car-front text-muted display-1"></i>
+        </div>
+        <h3>{% trans "No cars selected for comparison" %}</h3>
+        <p class="text-muted">{% trans "Browse listings and select 'Compare' to add vehicles here." %}</p>
+        <a href="{% url 'core:search' %}" class="btn btn-primary mt-3">{% trans "Browse Cars" %}</a>
+    </div>
+    {% endif %}
+</div>
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Handle remove button
+        document.querySelectorAll('.remove-compare').forEach(btn => {
+            btn.addEventListener('click', function () {
+                const idToRemove = this.dataset.id;
+                let currentIds = new URLSearchParams(window.location.search).get('ids');
+                if (currentIds) {
+                    let idsArray = currentIds.split(',').filter(id => id !== idToRemove);
+                    // Update URL and reload
+                    if (idsArray.length > 0) {
+                        window.location.search = `?ids=${idsArray.join(',')}`;
+                    } else {
+                        window.location.href = "{% url 'core:compare' %}";
+                    }
+
+                    // Also update localStorage to stay in sync
+                    let storedIds = JSON.parse(localStorage.getItem('compareIds') || '[]');
+                    storedIds = storedIds.filter(id => id !== idToRemove);
+                    localStorage.setItem('compareIds', JSON.stringify(storedIds));
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}
+{% endblock %}

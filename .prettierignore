@@ -1,0 +1,6 @@
+# Ignore all Django template files
+templates/
+*.html
+
+# Also ignore static files that shouldn't be formatted
+static/

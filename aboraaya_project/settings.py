@@ -118,8 +118,14 @@ LANGUAGE_CODE = config('LANGUAGE_CODE', default='ar')  # Arabic default
 TIME_ZONE = config('TIME_ZONE', default='Africa/Cairo')
 
 USE_I18N = True
-USE_L10N = True
+USE_L10N = False  # Disabled to use explicit separator settings below
 USE_TZ = True
+
+# Number formatting - use US-style (comma as thousands, period as decimal)
+USE_THOUSAND_SEPARATOR = True
+THOUSAND_SEPARATOR = ','
+DECIMAL_SEPARATOR = '.'
+NUMBER_GROUPING = 3
 
 LANGUAGES = [
     ('ar', 'Arabic'),

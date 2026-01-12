@@ -14,3 +14,11 @@ def has_file(field):
 def to_str(value):
     """Convert value to string"""
     return str(value)
+
+@register.filter(name='noloc')
+def noloc(value):
+    """Return value as string without localization (for years, etc.)"""
+    try:
+        return str(int(value))
+    except (ValueError, TypeError):
+        return str(value)

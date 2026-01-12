@@ -11,6 +11,7 @@ urlpatterns = [
     path('listing/<int:pk>/', views.listing_detail, name='listing_detail'),
     path('sell/', views.create_listing, name='create_listing'),
     path('dashboard/', views.seller_dashboard, name='dashboard'),
+    path('compare/', views.compare_listings, name='compare'),
     
     # Authentication
     path('login/', views.login_view, name='login'),
