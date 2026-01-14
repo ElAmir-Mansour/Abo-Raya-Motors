@@ -6,7 +6,8 @@ from django.db.models import Q, F
 from django.utils import timezone
 from django.utils.translation import gettext as _
 from django.contrib import messages
-from .models import Listing, Make, Model, CarTrim
+from django.views.decorators.http import require_POST
+from .models import Listing, Make, Model, CarTrim, Favorite
 from .forms import ListingForm, UserRegistrationForm, UserUpdateForm
 
 def home(request):
@@ -182,9 +183,68 @@ def create_listing(request):
     return render(request, 'listing_form.html', context)
 
 @login_required
+def edit_listing(request, pk):
+    """Edit an existing listing"""
+    listing = get_object_or_404(Listing, pk=pk)
+    
+    # Ensure only the owner can edit
+    if listing.seller != request.user:
+        messages.error(request, _('You do not have permission to edit this listing.'))
+        return redirect('core:dashboard')
+    
+    if request.method == 'POST':
+        form = ListingForm(request.POST, request.FILES, instance=listing)
+        if form.is_valid():
+            updated_listing = form.save(commit=False)
+            # If listing was active and edited, set back to pending for review
+            if listing.status == 'ACTIVE':
+                updated_listing.status = 'PENDING'
+                messages.info(request, _('Your listing has been updated and is pending review.'))
+            else:
+                messages.success(request, _('Your listing has been updated successfully.'))
+            updated_listing.save()
+            return redirect('core:dashboard')
+    else:
+        form = ListingForm(instance=listing)
+    
+    context = {
+        'form': form,
+        'listing': listing,
+        'makes': Make.objects.all(),
+        'is_edit': True,
+    }
+    return render(request, 'listing_form.html', context)
+
+@login_required
+def delete_listing(request, pk):
+    """Delete a listing"""
+    listing = get_object_or_404(Listing, pk=pk)
+    
+    # Ensure only the owner can delete
+    if listing.seller != request.user:
+        messages.error(request, _('You do not have permission to delete this listing.'))
+        return redirect('core:dashboard')
+    
+    if request.method == 'POST':
+        listing.delete()
+        messages.success(request, _('Your listing has been deleted successfully.'))
+        return redirect('core:dashboard')
+    
+    context = {
+        'listing': listing,
+    }
+    return render(request, 'listing_confirm_delete.html', context)
+
+@login_required
 def seller_dashboard(request):
-    """Seller dashboard with their listings"""
-    listings = Listing.objects.filter(seller=request.user).order_by('-created_at')
+    """Seller dashboard with their listings and favorites"""
+    listings = Listing.objects.filter(seller=request.user).select_related('trim__model__make').order_by('-created_at')
+    
+    # Get user's favorites
+    favorites = Favorite.objects.filter(user=request.user).select_related(
+        'listing__trim__model__make', 'listing__seller'
+    ).order_by('-created_at')
+    favorite_listings = [fav.listing for fav in favorites if fav.listing.status == 'ACTIVE']
     
     # Statistics
     stats = {
@@ -194,13 +254,25 @@ def seller_dashboard(request):
         'sold': listings.filter(status='SOLD').count(),
         'total_views': sum(listing.views for listing in listings),
         'total_phone_clicks': sum(listing.phone_clicks for listing in listings),
+        'favorites_count': len(favorite_listings),
     }
     
     context = {
         'listings': listings,
+        'favorites': favorite_listings,
         'stats': stats,
     }
     return render(request, 'dashboard.html', context)
+
+
+@login_required
+def mark_as_sold(request, pk):
+    """Mark a listing as sold"""
+    listing = get_object_or_404(Listing, pk=pk, seller=request.user)
+    listing.status = 'SOLD'
+    listing.save()
+    messages.success(request, _('Your car has been marked as sold!'))
+    return redirect('core:dashboard')
 
 # --- AJAX Endpoints ---
 def load_models(request):
@@ -288,7 +360,7 @@ def register_view(request):
         form = UserRegistrationForm(request.POST)
         if form.is_valid():
             user = form.save()
-            login(request, user)
+            login(request, user, backend='django.contrib.auth.backends.ModelBackend')
             return redirect('core:home')
     else:
         form = UserRegistrationForm()
@@ -347,3 +419,30 @@ def compare_listings(request):
         'listings': listings
     }
     return render(request, 'compare.html', context)
+
+
+@login_required
+@require_POST
+def toggle_favorite(request, pk):
+    """AJAX endpoint to add/remove a listing from favorites"""
+    listing = get_object_or_404(Listing, pk=pk, status='ACTIVE')
+    
+    favorite, created = Favorite.objects.get_or_create(
+        user=request.user,
+        listing=listing
+    )
+    
+    if not created:
+        # Already favorited, so remove it
+        favorite.delete()
+        return JsonResponse({
+            'status': 'removed',
+            'message': _('Removed from favorites'),
+            'is_favorited': False
+        })
+    else:
+        return JsonResponse({
+            'status': 'added',
+            'message': _('Added to favorites'),
+            'is_favorited': True
+        })

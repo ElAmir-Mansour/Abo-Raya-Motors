@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% load i18n static %}
+
+{% block title %}{% trans "Page Not Found" %} - Abo Raaya Motors{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center text-center">
+        <div class="col-md-8">
+            <div class="glass-card p-5">
+                <div style="font-size: 8rem; font-weight: 800; color: var(--amber-gold); opacity: 0.5;">404</div>
+
+                <h1 class="text-white mt-3">
+                    {% if LANGUAGE_CODE == 'ar' %}
+                    الصفحة غير موجودة
+                    {% else %}
+                    Page Not Found
+                    {% endif %}
+                </h1>
+
+                <p class="text-gray-300 mt-3 mb-4">
+                    {% if LANGUAGE_CODE == 'ar' %}
+                    عذراً، الصفحة التي تبحث عنها غير موجودة أو تم نقلها.
+                    {% else %}
+                    Sorry, the page you're looking for doesn't exist or has been moved.
+                    {% endif %}
+                </p>
+
+                <div class="d-flex gap-3 justify-content-center flex-wrap">
+                    <a href="{% url 'core:home' %}" class="btn-primary px-4">
+                        <i class="bi bi-house"></i> {% trans "Go Home" %}
+                    </a>
+                    <a href="{% url 'core:search' %}" class="btn-secondary px-4">
+                        <i class="bi bi-search"></i> {% trans "Search Cars" %}
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

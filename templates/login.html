@@ -20,198 +20,237 @@
     <link rel="stylesheet" href="{% static 'css/main.css' %}">
 
     <style>
-        body {
+        * {
             margin: 0;
             padding: 0;
-            height: 100vh;
-            overflow: hidden;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0a0e1a 0%, #1a1f35 50%, #0d1020 100%);
+            font-family: 'Cairo', 'Roboto', sans-serif;
+            overflow-x: hidden;
+        }
+
+        /* Animated background orbs */
+        .bg-orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.4;
+            animation: float 20s ease-in-out infinite;
+            z-index: 0;
+        }
+
+        .bg-orb-1 {
+            width: 600px;
+            height: 600px;
+            background: linear-gradient(135deg, #00d4ff 0%, #0099cc 100%);
+            top: -200px;
+            left: -200px;
+        }
+
+        .bg-orb-2 {
+            width: 500px;
+            height: 500px;
+            background: linear-gradient(135deg, #ffb020 0%, #ff8c00 100%);
+            bottom: -150px;
+            right: -150px;
+            animation-delay: -10s;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translate(0, 0) rotate(0deg);
+            }
+
+            25% {
+                transform: translate(30px, -30px) rotate(5deg);
+            }
+
+            50% {
+                transform: translate(-20px, 20px) rotate(-5deg);
+            }
+
+            75% {
+                transform: translate(20px, 30px) rotate(3deg);
+            }
         }
 
         .auth-container {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            height: 100vh;
+            min-height: 100vh;
+            position: relative;
+            z-index: 1;
         }
 
-        /* Left Side: Hero Image */
+        /* Left Side: Hero */
         .auth-hero {
             position: relative;
-            background: linear-gradient(135deg, var(--midnight-900) 0%, var(--midnight-800) 100%);
             display: flex;
             align-items: center;
             justify-content: center;
+            padding: 3rem;
             overflow: hidden;
         }
 
         .auth-hero::before {
             content: '';
             position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
+            inset: 0;
             background: url('{% static "images/auth_hero_car.png" %}') center/cover;
-            opacity: 0.6;
-            z-index: 1;
+            opacity: 0.5;
         }
 
         .auth-hero::after {
             content: '';
             position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(135deg,
-                    rgba(0, 212, 255, 0.1) 0%,
-                    rgba(255, 176, 32, 0.1) 100%);
-            z-index: 2;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.15), rgba(255, 176, 32, 0.1));
         }
 
         .hero-content {
             position: relative;
-            z-index: 3;
+            z-index: 2;
             text-align: center;
-            padding: 3rem;
-            max-width: 600px;
+            max-width: 500px;
         }
 
         .hero-logo {
-            height: 80px;
+            height: 100px;
             margin-bottom: 2rem;
-            filter: drop-shadow(0 4px 20px rgba(0, 212, 255, 0.3));
+            filter: drop-shadow(0 8px 30px rgba(0, 212, 255, 0.4));
+            animation: pulse 3s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.05);
+            }
         }
 
         .hero-title {
             font-size: 3rem;
             font-weight: 800;
             margin-bottom: 1rem;
-            background: linear-gradient(135deg, var(--white) 0%, var(--electric-blue) 100%);
+            background: linear-gradient(135deg, #fff 0%, #00d4ff 50%, #ffb020 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
+            line-height: 1.2;
         }
 
         .hero-subtitle {
             font-size: 1.25rem;
-            color: var(--white);
-            line-height: 1.6;
+            color: rgba(255, 255, 255, 0.9);
+            line-height: 1.8;
         }
 
-        /* Right Side: Auth Form */
+        .hero-stats {
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            margin-top: 2.5rem;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #00d4ff;
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: rgba(255, 255, 255, 0.7);
+            margin-top: 0.25rem;
+        }
+
+        /* Right Side: Form */
         .auth-form-side {
-            background: var(--midnight-900);
             display: flex;
             align-items: center;
             justify-content: center;
             padding: 3rem;
-            overflow-y: auto;
+            position: relative;
         }
 
-        .auth-form-container {
+        .auth-card {
             width: 100%;
-            max-width: 480px;
+            max-width: 440px;
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 24px;
+            padding: 3rem;
+            box-shadow: 0 24px 80px rgba(0, 0, 0, 0.4);
         }
 
         .auth-header {
-            margin-bottom: 2rem;
             text-align: center;
+            margin-bottom: 2rem;
         }
 
         .auth-header h2 {
             font-size: 2rem;
             font-weight: 700;
+            color: #fff;
             margin-bottom: 0.5rem;
-            color: var(--white);
         }
 
         .auth-header p {
-            color: var(--gray-300);
+            color: rgba(255, 255, 255, 0.6);
             font-size: 1rem;
         }
 
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 0.5rem;
-            color: var(--white);
-            font-size: 0.875rem;
-            font-weight: 500;
-        }
-
-        .form-control {
+        /* Google Button - Dark themed to match */
+        .btn-social {
             width: 100%;
-            padding: 1rem;
-            background: var(--midnight-700);
-            border: 2px solid var(--midnight-600);
-            border-radius: var(--radius-md);
-            color: var(--white);
+            padding: 1rem 1.5rem;
+            border-radius: 14px;
+            font-weight: 600;
             font-size: 1rem;
-            transition: all var(--transition-base);
-        }
-
-        .form-control:focus {
-            outline: none;
-            border-color: var(--electric-blue);
-            background: var(--midnight-800);
-            box-shadow: 0 0 0 4px var(--electric-blue-light);
-        }
-
-        .form-control::placeholder {
-            color: var(--gray-400);
-        }
-
-        .social-login {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1rem;
-            margin-bottom: 2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            text-decoration: none;
         }
 
         .btn-google {
-            background: white;
-            color: #333;
-            border: 2px solid var(--midnight-600);
-            padding: 0.875rem 1rem;
-            border-radius: var(--radius-md);
-            font-weight: 600;
-            cursor: pointer;
-            transition: all var(--transition-base);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #fff;
         }
 
         .btn-google:hover {
-            background: #f8f9fa;
-            border-color: var(--electric-blue);
+            background: rgba(255, 255, 255, 0.15);
+            border-color: #00d4ff;
             transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0, 212, 255, 0.2);
         }
 
-        .btn-facebook {
-            background: #1877F2;
-            color: white;
-            border: none;
-            padding: 0.875rem 1rem;
-            border-radius: var(--radius-md);
-            font-weight: 600;
-            cursor: pointer;
-            transition: all var(--transition-base);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
+        .btn-google svg {
+            width: 20px;
+            height: 20px;
         }
 
-        .btn-facebook:hover {
-            background: #166FE5;
-            transform: translateY(-2px);
-        }
-
+        /* Divider */
         .divider {
             display: flex;
             align-items: center;
@@ -222,60 +261,163 @@
         .divider-line {
             flex: 1;
             height: 1px;
-            background: var(--midnight-600);
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
         }
 
         .divider-text {
-            color: var(--white);
+            color: rgba(255, 255, 255, 0.5);
             font-size: 0.875rem;
             font-weight: 500;
         }
 
-        .language-switch {
-            position: fixed;
-            top: 2rem;
-            right: 2rem;
-            z-index: 100;
+        /* Form Group */
+        .form-group {
+            margin-bottom: 1.5rem;
         }
 
-        .language-switch button {
-            background: var(--glass-bg);
-            backdrop-filter: blur(12px);
-            border: 1px solid var(--glass-border);
-            color: var(--white);
-            padding: 0.75rem 1.5rem;
-            border-radius: var(--radius-full);
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-wrapper i {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 1.1rem;
+        }
+
+        [dir="rtl"] .input-wrapper i {
+            left: auto;
+            right: 1rem;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 1rem 1rem 1rem 3rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            color: #fff;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        [dir="rtl"] .form-control {
+            padding: 1rem 3rem 1rem 1rem;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #00d4ff;
+            background: rgba(0, 212, 255, 0.05);
+            box-shadow: 0 0 0 4px rgba(0, 212, 255, 0.15);
+        }
+
+        .form-control::placeholder {
+            color: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Submit Button */
+        .btn-submit {
+            width: 100%;
+            padding: 1rem 2rem;
+            background: linear-gradient(135deg, #00d4ff 0%, #0099cc 100%);
+            border: none;
+            border-radius: 12px;
+            color: #fff;
+            font-size: 1rem;
+            font-weight: 700;
             cursor: pointer;
-            transition: all var(--transition-base);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 30px rgba(0, 212, 255, 0.4);
+        }
+
+        /* Links */
+        .auth-links {
+            text-align: center;
+            margin-top: 2rem;
+        }
+
+        .auth-links p {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.95rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .auth-links a {
+            color: #00d4ff;
+            text-decoration: none;
             font-weight: 600;
+            transition: color 0.2s ease;
         }
 
-        .language-switch button:hover {
-            border-color: var(--electric-blue);
-            background: var(--electric-blue-light);
+        .auth-links a:hover {
+            color: #ffb020;
+            text-decoration: underline;
         }
 
+        /* Error Message */
         .error-message {
-            background: rgba(239, 68, 68, 0.15);
-            border: 1px solid var(--status-below);
+            background: rgba(255, 100, 100, 0.1);
+            border: 1px solid rgba(255, 100, 100, 0.3);
             color: #ff6b6b;
             padding: 1rem;
-            border-radius: var(--radius-md);
+            border-radius: 12px;
             margin-bottom: 1.5rem;
             text-align: center;
             font-weight: 500;
         }
 
-        .text-link {
-            color: var(--electric-blue);
-            text-decoration: none;
-            font-weight: 500;
+        /* Language Switch */
+        .language-switch {
+            position: fixed;
+            top: 1.5rem;
+            right: 1.5rem;
+            z-index: 100;
         }
 
-        .text-link:hover {
-            text-decoration: underline;
+        [dir="rtl"] .language-switch {
+            right: auto;
+            left: 1.5rem;
         }
 
+        .language-switch button {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: #fff;
+            padding: 0.6rem 1.2rem;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .language-switch button:hover {
+            border-color: #00d4ff;
+            background: rgba(0, 212, 255, 0.15);
+        }
+
+        /* Mobile Responsive */
         @media (max-width: 968px) {
             .auth-container {
                 grid-template-columns: 1fr;
@@ -285,14 +427,18 @@
                 display: none;
             }
 
-            .social-login {
-                grid-template-columns: 1fr;
+            .auth-card {
+                padding: 2rem;
             }
         }
     </style>
 </head>
 
 <body lang="{{ LANGUAGE_CODE }}">
+    <!-- Background Orbs -->
+    <div class="bg-orb bg-orb-1"></div>
+    <div class="bg-orb bg-orb-2"></div>
+
     <!-- Language Switcher -->
     <div class="language-switch">
         <button type="button"
@@ -317,29 +463,35 @@
                     {% if LANGUAGE_CODE == 'ar' %}
                     ابحث، اشتري، وبيع سيارتك بكل ثقة وسهولة
                     {% else %}
-                    Search, buy, and sell cars with confidence
+                    Search, buy, and sell your car with confidence
                     {% endif %}
                 </p>
+                <div class="hero-stats">
+                    <div class="stat-item">
+                        <div class="stat-value">500+</div>
+                        <div class="stat-label">{% if LANGUAGE_CODE == 'ar' %}سيارة{% else %}Cars{% endif %}</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">50+</div>
+                        <div class="stat-label">{% if LANGUAGE_CODE == 'ar' %}تاجر{% else %}Dealers{% endif %}</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">1K+</div>
+                        <div class="stat-label">{% if LANGUAGE_CODE == 'ar' %}مستخدم{% else %}Users{% endif %}</div>
+                    </div>
+                </div>
             </div>
         </div>
 
         <!-- Right Side: Auth Form -->
         <div class="auth-form-side">
-            <div class="auth-form-container">
+            <div class="auth-card">
                 <div class="auth-header">
                     <h2>
-                        {% if LANGUAGE_CODE == 'ar' %}
-                        مرحباً بك
-                        {% else %}
-                        Welcome Back
-                        {% endif %}
+                        {% if LANGUAGE_CODE == 'ar' %}مرحباً بك{% else %}Welcome Back{% endif %}
                     </h2>
                     <p>
-                        {% if LANGUAGE_CODE == 'ar' %}
-                        سجل الدخول إلى حسابك
-                        {% else %}
-                        Sign in to your account
-                        {% endif %}
+                        {% if LANGUAGE_CODE == 'ar' %}سجل الدخول إلى حسابك{% else %}Sign in to your account{% endif %}
                     </p>
                 </div>
 
@@ -349,39 +501,28 @@
                 </div>
                 {% endif %}
 
-                <!-- Social Login -->
+                <!-- Google Login -->
                 {% load socialaccount %}
-                <div class="social-login">
-                    <a href="{% provider_login_url 'google' %}" class="btn-google" style="width: 100%;">
-                        <svg width="18" height="18" viewBox="0 0 18 18">
-                            <path fill="#4285F4"
-                                d="M16.51 8H8.98v3h4.3c-.18 1-.74 1.48-1.6 2.04v2.01h2.6a7.8 7.8 0 0 0 2.38-5.88c0-.57-.05-.66-.15-1.18z">
-                            </path>
-                            <path fill="#34A853"
-                                d="M8.98 17c2.16 0 3.97-.72 5.3-1.94l-2.6-2a4.8 4.8 0 0 1-7.18-2.54H1.83v2.07A8 8 0 0 0 8.98 17z">
-                            </path>
-                            <path fill="#FBBC05"
-                                d="M4.5 10.52a4.8 4.8 0 0 1 0-3.04V5.41H1.83a8 8 0 0 0 0 7.18l2.67-2.07z"></path>
-                            <path fill="#EA4335"
-                                d="M8.98 4.18c1.17 0 2.23.4 3.06 1.2l2.3-2.3A8 8 0 0 0 1.83 5.4L4.5 7.49a4.77 4.77 0 0 1 4.48-3.3z">
-                            </path>
-                        </svg>
-                        {% if LANGUAGE_CODE == 'ar' %}تسجيل الدخول بجوجل{% else %}Sign in with Google{% endif %}
-                    </a>
-
-                    <!-- Facebook button hidden until API keys are added
-                    <a href="{% provider_login_url 'facebook' %}" class="btn-facebook">
-                        <i class="bi bi-facebook"></i>
-                        {% if LANGUAGE_CODE == 'ar' %}تسجيل بفيسبوك{% else %}Facebook{% endif %}
-                    </a>
-                    -->
-                </div>
+                <a href="{% provider_login_url 'google' %}" class="btn-social btn-google">
+                    <svg viewBox="0 0 18 18">
+                        <path fill="#4285F4"
+                            d="M16.51 8H8.98v3h4.3c-.18 1-.74 1.48-1.6 2.04v2.01h2.6a7.8 7.8 0 0 0 2.38-5.88c0-.57-.05-.66-.15-1.18z">
+                        </path>
+                        <path fill="#34A853"
+                            d="M8.98 17c2.16 0 3.97-.72 5.3-1.94l-2.6-2a4.8 4.8 0 0 1-7.18-2.54H1.83v2.07A8 8 0 0 0 8.98 17z">
+                        </path>
+                        <path fill="#FBBC05" d="M4.5 10.52a4.8 4.8 0 0 1 0-3.04V5.41H1.83a8 8 0 0 0 0 7.18l2.67-2.07z">
+                        </path>
+                        <path fill="#EA4335"
+                            d="M8.98 4.18c1.17 0 2.23.4 3.06 1.2l2.3-2.3A8 8 0 0 0 1.83 5.4L4.5 7.49a4.77 4.77 0 0 1 4.48-3.3z">
+                        </path>
+                    </svg>
+                    {% if LANGUAGE_CODE == 'ar' %}تسجيل الدخول بجوجل{% else %}Continue with Google{% endif %}
+                </a>
 
                 <div class="divider">
                     <div class="divider-line"></div>
-                    <span class="divider-text">
-                        {% if LANGUAGE_CODE == 'ar' %}أو{% else %}OR{% endif %}
-                    </span>
+                    <span class="divider-text">{% if LANGUAGE_CODE == 'ar' %}أو{% else %}OR{% endif %}</span>
                     <div class="divider-line"></div>
                 </div>
 
@@ -393,34 +534,40 @@
                         <label for="email">
                             {% if LANGUAGE_CODE == 'ar' %}البريد الإلكتروني{% else %}Email Address{% endif %}
                         </label>
-                        <input type="email" class="form-control" id="email" name="email" required
-                            placeholder="example@email.com">
+                        <div class="input-wrapper">
+                            <i class="bi bi-envelope"></i>
+                            <input type="email" class="form-control" id="email" name="email" required
+                                placeholder="{% if LANGUAGE_CODE == 'ar' %}أدخل بريدك الإلكتروني{% else %}Enter your email{% endif %}">
+                        </div>
                     </div>
 
                     <div class="form-group">
                         <label for="password">
                             {% if LANGUAGE_CODE == 'ar' %}كلمة المرور{% else %}Password{% endif %}
                         </label>
-                        <input type="password" class="form-control" id="password" name="password" required
-                            placeholder="••••••••">
+                        <div class="input-wrapper">
+                            <i class="bi bi-lock"></i>
+                            <input type="password" class="form-control" id="password" name="password" required
+                                placeholder="{% if LANGUAGE_CODE == 'ar' %}أدخل كلمة المرور{% else %}Enter your password{% endif %}">
+                        </div>
                     </div>
 
-                    <button type="submit" class="btn-primary w-100 mb-3" style="width: 100%;">
+                    <button type="submit" class="btn-submit">
                         <i class="bi bi-box-arrow-in-right"></i>
                         {% if LANGUAGE_CODE == 'ar' %}تسجيل الدخول{% else %}Sign In{% endif %}
                     </button>
                 </form>
 
-                <div class="text-center">
-                    <p style="color: var(--white); font-size: 0.875rem;">
+                <div class="auth-links">
+                    <p>
                         {% if LANGUAGE_CODE == 'ar' %}
-                        ليس لديك حساب؟ <a href="{% url 'core:register' %}" class="text-link">أنشئ حساب الآن</a>
+                        ليس لديك حساب؟ <a href="{% url 'core:register' %}">أنشئ حساب جديد</a>
                         {% else %}
-                        Don't have an account? <a href="{% url 'core:register' %}" class="text-link">Sign up now</a>
+                        Don't have an account? <a href="{% url 'core:register' %}">Create one</a>
                         {% endif %}
                     </p>
-                    <p style="color: var(--gray-300); font-size: 0.875rem;">
-                        <a href="{% url 'password_reset' %}" class="text-link">
+                    <p>
+                        <a href="{% url 'password_reset' %}">
                             {% if LANGUAGE_CODE == 'ar' %}نسيت كلمة المرور؟{% else %}Forgot your password?{% endif %}
                         </a>
                     </p>
@@ -428,18 +575,6 @@
             </div>
         </div>
     </div>
-
-    <script>
-        function loginWithGoogle() {
-            alert('{% if LANGUAGE_CODE == 'ar' %}قريباً: تسجيل الدخول بواسطة جوجل{% else %}Coming soon: Google Login{% endif %}');
-            // In production: window.location.href = '/auth/google/';
-        }
-
-        function loginWithFacebook() {
-            alert('{% if LANGUAGE_CODE == 'ar' %}قريباً: تسجيل الدخول بواسطة فيسبوك{% else %}Coming soon: Facebook Login{% endif %}');
-            // In production: window.location.href = '/auth/facebook/';
-        }
-    </script>
 </body>
 
 </html>

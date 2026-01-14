@@ -9,6 +9,8 @@ urlpatterns = [
     path('', views.home, name='home'),
     path('search/', views.search_listings, name='search'),
     path('listing/<int:pk>/', views.listing_detail, name='listing_detail'),
+    path('listing/<int:pk>/edit/', views.edit_listing, name='edit_listing'),
+    path('listing/<int:pk>/delete/', views.delete_listing, name='delete_listing'),
     path('sell/', views.create_listing, name='create_listing'),
     path('dashboard/', views.seller_dashboard, name='dashboard'),
     path('compare/', views.compare_listings, name='compare'),
@@ -28,4 +30,8 @@ urlpatterns = [
     path('ajax/load-models/', views.load_models, name='ajax_load_models'),
     path('ajax/load-trims/', views.load_trims, name='ajax_load_trims'),
     path('ajax/reveal-phone/<int:pk>/', views.reveal_phone, name='reveal_phone'),
+    path('ajax/toggle-favorite/<int:pk>/', views.toggle_favorite, name='toggle_favorite'),
+    
+    # Dashboard Actions
+    path('listing/<int:pk>/mark-sold/', views.mark_as_sold, name='mark_as_sold'),
 ]

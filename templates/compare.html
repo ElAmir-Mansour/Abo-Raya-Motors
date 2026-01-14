@@ -5,202 +5,122 @@
 
 {% block title %}{% trans "Compare Vehicles" %}{% endblock %}
 
+{% block extra_css %}
+<style>
+.compare-section { padding: 3rem 0; }
+.compare-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2.5rem; }
+.compare-header h1 { font-size: 2rem; font-weight: 700; color: var(--white); margin: 0; }
+.compare-header h1 i { color: var(--electric-blue); margin-right: 0.75rem; }
+.btn-add-car { background: linear-gradient(135deg, var(--electric-blue) 0%, #0099cc 100%); color: white; padding: 0.75rem 1.5rem; border-radius: 12px; text-decoration: none; font-weight: 600; display: flex; align-items: center; gap: 0.5rem; transition: all 0.3s ease; border: none; }
+.btn-add-car:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0, 212, 255, 0.3); color: white; }
+.compare-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+.compare-card { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 20px; overflow: hidden; transition: all 0.3s ease; position: relative; }
+.compare-card:hover { transform: translateY(-4px); border-color: var(--electric-blue); box-shadow: 0 16px 48px rgba(0, 212, 255, 0.15); }
+.compare-card.empty { border: 2px dashed rgba(255, 255, 255, 0.15); background: rgba(255, 255, 255, 0.01); display: flex; align-items: center; justify-content: center; min-height: 500px; }
+.compare-card.empty:hover { border-color: var(--electric-blue); background: rgba(0, 212, 255, 0.05); }
+.empty-slot-content { text-align: center; padding: 2rem; }
+.empty-slot-content i { font-size: 3rem; color: rgba(255, 255, 255, 0.2); margin-bottom: 1rem; display: block; }
+.empty-slot-content p { color: rgba(255, 255, 255, 0.4); margin-bottom: 1.5rem; }
+.empty-slot-content a { color: var(--electric-blue); text-decoration: none; font-weight: 600; }
+.empty-slot-content a:hover { text-decoration: underline; }
+.card-header-img { position: relative; height: 200px; background: linear-gradient(135deg, #1a1f35 0%, #0d1020 100%); }
+.card-header-img img { width: 100%; height: 100%; object-fit: cover; }
+.card-header-img .placeholder-icon { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
+.card-header-img .placeholder-icon i { font-size: 4rem; color: rgba(255, 255, 255, 0.1); }
+.btn-remove { position: absolute; top: 0.75rem; right: 0.75rem; width: 36px; height: 36px; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(8px); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; cursor: pointer; transition: all 0.3s ease; z-index: 10; }
+.btn-remove:hover { background: #ef4444; border-color: #ef4444; transform: scale(1.1); }
+.card-body-compare { padding: 1.5rem; }
+.car-title { font-size: 1.25rem; font-weight: 700; color: var(--white); margin-bottom: 0.25rem; }
+.car-trim { font-size: 0.875rem; color: rgba(255, 255, 255, 0.5); margin-bottom: 1rem; }
+.car-price { font-size: 1.75rem; font-weight: 800; background: linear-gradient(135deg, var(--amber-gold) 0%, #ffcc00 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 1.5rem; }
+.specs-list { list-style: none; padding: 0; margin: 0; }
+.specs-list li { display: flex; justify-content: space-between; align-items: center; padding: 0.875rem 0; border-bottom: 1px solid rgba(255, 255, 255, 0.06); }
+.specs-list li:last-child { border-bottom: none; }
+.spec-label { display: flex; align-items: center; gap: 0.5rem; color: rgba(255, 255, 255, 0.5); font-size: 0.875rem; }
+.spec-label i { width: 20px; color: var(--electric-blue); }
+.spec-value { color: var(--white); font-weight: 600; font-size: 0.95rem; }
+.spec-badge { padding: 0.35rem 0.75rem; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
+.badge-fuel { background: rgba(34, 197, 94, 0.15); color: #22c55e; }
+.badge-petrol { background: rgba(239, 68, 68, 0.15); color: #ef4444; }
+.badge-hybrid { background: rgba(59, 130, 246, 0.15); color: #3b82f6; }
+.badge-electric { background: rgba(0, 212, 255, 0.15); color: #00d4ff; }
+.card-footer-compare { padding: 0 1.5rem 1.5rem; }
+.btn-view-details { width: 100%; padding: 0.875rem 1rem; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; color: var(--white); font-weight: 600; text-decoration: none; text-align: center; display: flex; align-items: center; justify-content: center; gap: 0.5rem; transition: all 0.3s ease; }
+.btn-view-details:hover { background: var(--electric-blue); border-color: var(--electric-blue); color: white; }
+.empty-state { text-align: center; padding: 5rem 2rem; }
+.empty-state-icon { width: 120px; height: 120px; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 2rem; }
+.empty-state-icon i { font-size: 3rem; color: rgba(255, 255, 255, 0.2); }
+.empty-state h3 { font-size: 1.5rem; color: var(--white); margin-bottom: 0.75rem; }
+.empty-state p { color: rgba(255, 255, 255, 0.5); margin-bottom: 2rem; max-width: 400px; margin-left: auto; margin-right: auto; }
+.btn-browse { display: inline-flex; align-items: center; gap: 0.5rem; padding: 1rem 2rem; background: linear-gradient(135deg, var(--electric-blue) 0%, #0099cc 100%); color: white; text-decoration: none; border-radius: 12px; font-weight: 600; transition: all 0.3s ease; }
+.btn-browse:hover { transform: translateY(-2px); box-shadow: 0 12px 30px rgba(0, 212, 255, 0.3); color: white; }
+@media (max-width: 768px) { .compare-header { flex-direction: column; gap: 1rem; text-align: center; } .compare-grid { grid-template-columns: 1fr; } }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container py-5">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="h2 mb-0">{% trans "Compare Vehicles" %}</h1>
-        <a href="{% url 'core:search' %}" class="btn btn-outline-primary">
-            <i class="bi bi-plus-lg me-1"></i> {% trans "Add Car" %}
-        </a>
-    </div>
-
-    {% if listings %}
-    <div class="table-responsive">
-        <table class="table table-bordered table-hover align-middle">
-            <thead class="table-light">
-                <tr>
-                    <th style="width: 200px;">{% trans "Features" %}</th>
-                    {% for listing in listings %}
-                    <th class="text-center" style="min-width: 250px;">
-                        <div class="position-relative">
-                            <button
-                                class="btn btn-sm btn-icon btn-light position-absolute top-0 end-0 m-1 remove-compare"
-                                data-id="{{ listing.id }}" title="{% trans 'Remove' %}">
-                                <i class="bi bi-x"></i>
-                            </button>
-                            {% if listing.image_main %}
-                            <img src="{{ listing.image_main.url }}" alt="{{ listing.trim }}"
-                                class="img-fluid rounded mb-2" style="height: 150px; object-fit: cover;">
-                            {% else %}
-                            <div class="d-flex align-items-center justify-content-center rounded mb-2"
-                                style="height: 150px; background: #f0f0f0;">
-                                <i class="bi bi-car-front" style="font-size: 3rem; opacity: 0.3;"></i>
-                            </div>
-                            {% endif %}
-                            <h5 class="h6 mb-1 text-primary">{{ listing.trim.model.make.name_en }} {{ listing.trim.model.name_en }}</h5>
-                            <p class="small text-muted mb-0">{{ listing.trim.name }}</p>
-                            <div class="fw-bold fs-5 mt-2 text-dark">{{ listing.price|intcomma }} {% trans "EGP" %}
-                            </div>
-                        </div>
-                    </th>
-                    {% endfor %}
-
-                    {# Fill empty slots placeholders if less than 3 #}
-                    {% if listings|length < 3 %} <th class="text-center bg-light text-muted" style="min-width: 250px;">
-                        <div class="py-5">
-                            <i class="bi bi-car-front display-4 opacity-25"></i>
-                            <p class="mt-3">{% trans "Empty Slot" %}</p>
-                        </div>
-                        </th>
-                        {% endif %}
-                        {% if listings|length < 2 %} <th class="text-center bg-light text-muted"
-                            style="min-width: 250px;">
-                            <div class="py-5">
-                                <i class="bi bi-car-front display-4 opacity-25"></i>
-                                <p class="mt-3">{% trans "Empty Slot" %}</p>
-                            </div>
-                            </th>
-                            {% endif %}
-                </tr>
-            </thead>
-            <tbody>
-                {# Row: Year #}
-                <tr>
-                    <th class="bg-light">{% trans "Year" %}</th>
-                    {% for listing in listings %}
-                    <td class="text-center">{{ listing.trim.year }}</td>
-                    {% endfor %}
-                    {% if listings|length < 3 %}<td>
-                        </td>{% endif %}{% if listings|length < 2 %}<td>
-                            </td>{% endif %}
-                </tr>
-
-                {# Row: Mileage #}
-                <tr>
-                    <th class="bg-light">{% trans "Odometer" %}</th>
-                    {% for listing in listings %}
-                    <td class="text-center">{{ listing.odometer|intcomma }} {% trans "km" %}</td>
-                    {% endfor %}
-                    {% if listings|length < 3 %}<td>
-                        </td>{% endif %}{% if listings|length < 2 %}<td>
-                            </td>{% endif %}
-                </tr>
-
-                {# Row: Transmission #}
-                <tr>
-                    <th class="bg-light">{% trans "Transmission" %}</th>
-                    {% for listing in listings %}
-                    <td class="text-center">{{ listing.trim.get_transmission_display }}</td>
-                    {% endfor %}
-                    {% if listings|length < 3 %}<td>
-                        </td>{% endif %}{% if listings|length < 2 %}<td>
-                            </td>{% endif %}
-                </tr>
-
-                {# Row: Fuel Type #}
-                <tr>
-                    <th class="bg-light">{% trans "Fuel" %}</th>
-                    {% for listing in listings %}
-                    <td class="text-center">
-                        <span class="badge bg-secondary-subtle text-secondary-emphasis rounded-pill">
-                            {{ listing.trim.get_fuel_type_display }}
-                        </span>
-                    </td>
-                    {% endfor %}
-                    {% if listings|length < 3 %}<td>
-                        </td>{% endif %}{% if listings|length < 2 %}<td>
-                            </td>{% endif %}
-                </tr>
-
-                {# Row: Engine #}
-                <tr>
-                    <th class="bg-light">{% trans "Engine" %}</th>
-                    {% for listing in listings %}
-                    <td class="text-center">{{ listing.trim.engine_cc }} cc</td>
-                    {% endfor %}
-                    {% if listings|length < 3 %}<td>
-                        </td>{% endif %}{% if listings|length < 2 %}<td>
-                            </td>{% endif %}
-                </tr>
-
-                {# Row: Horsepower #}
-                <tr>
-                    <th class="bg-light">{% trans "Power" %}</th>
-                    {% for listing in listings %}
-                    <td class="text-center">{{ listing.trim.horsepower }} {% trans "HP" %}</td>
-                    {% endfor %}
-                    {% if listings|length < 3 %}<td>
-                        </td>{% endif %}{% if listings|length < 2 %}<td>
-                            </td>{% endif %}
-                </tr>
-
-                {# Row: Location #}
-                <tr>
-                    <th class="bg-light">{% trans "Location" %}</th>
-                    {% for listing in listings %}
-                    <td class="text-center listing-location">
-                        <i class="bi bi-geo-alt me-1"></i> {{ listing.get_location_display }}
-                    </td>
-                    {% endfor %}
-                    {% if listings|length < 3 %}<td>
-                        </td>{% endif %}{% if listings|length < 2 %}<td>
-                            </td>{% endif %}
-                </tr>
-
-                {# Row: Actions #}
-                <tr>
-                    <th class="bg-light"></th>
-                    {% for listing in listings %}
-                    <td class="text-center">
-                        <a href="{% url 'core:listing_detail' listing.id %}" class="btn btn-primary w-100">
-                            {% trans "View Details" %}
-                        </a>
-                    </td>
-                    {% endfor %}
-                    {% if listings|length < 3 %}<td>
-                        </td>{% endif %}{% if listings|length < 2 %}<td>
-                            </td>{% endif %}
-                </tr>
-            </tbody>
-        </table>
-    </div>
-    {% else %}
-    <div class="text-center py-5">
-        <div class="mb-3">
-            <i class="bi bi-car-front text-muted display-1"></i>
-        </div>
-        <h3>{% trans "No cars selected for comparison" %}</h3>
-        <p class="text-muted">{% trans "Browse listings and select 'Compare' to add vehicles here." %}</p>
-        <a href="{% url 'core:search' %}" class="btn btn-primary mt-3">{% trans "Browse Cars" %}</a>
-    </div>
-    {% endif %}
+<div class="container compare-section">
+<div class="compare-header">
+<h1><i class="bi bi-bar-chart-fill"></i> {% trans "Compare Vehicles" %}</h1>
+<a href="{% url 'core:search' %}" class="btn-add-car"><i class="bi bi-plus-lg"></i> {% trans "Add Car" %}</a>
 </div>
 
-{% block scripts %}
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        // Handle remove button
-        document.querySelectorAll('.remove-compare').forEach(btn => {
-            btn.addEventListener('click', function () {
-                const idToRemove = this.dataset.id;
-                let currentIds = new URLSearchParams(window.location.search).get('ids');
-                if (currentIds) {
-                    let idsArray = currentIds.split(',').filter(id => id !== idToRemove);
-                    // Update URL and reload
-                    if (idsArray.length > 0) {
-                        window.location.search = `?ids=${idsArray.join(',')}`;
-                    } else {
-                        window.location.href = "{% url 'core:compare' %}";
-                    }
-
-                    // Also update localStorage to stay in sync
-                    let storedIds = JSON.parse(localStorage.getItem('compareIds') || '[]');
-                    storedIds = storedIds.filter(id => id !== idToRemove);
-                    localStorage.setItem('compareIds', JSON.stringify(storedIds));
-                }
-            });
-        });
-    });
-</script>
+{% if listings %}
+<div class="compare-grid">
+{% for listing in listings %}
+<div class="compare-card">
+<div class="card-header-img">
+<button class="btn-remove remove-compare" data-id="{{ listing.id }}" title="{% trans 'Remove' %}"><i class="bi bi-x-lg"></i></button>
+{% if listing.image_main %}<img src="{{ listing.image_main.url }}" alt="{{ listing.trim }}">{% else %}<div class="placeholder-icon"><i class="bi bi-car-front"></i></div>{% endif %}
+</div>
+<div class="card-body-compare">
+<h3 class="car-title">{{ listing.trim.model.make.name_en }} {{ listing.trim.model.name_en }}</h3>
+<p class="car-trim">{{ listing.trim.name }}</p>
+<div class="car-price">{{ listing.price|intcomma }} {% trans "EGP" %}</div>
+<ul class="specs-list">
+<li><span class="spec-label"><i class="bi bi-calendar3"></i> {% trans "Year" %}</span><span class="spec-value">{{ listing.trim.year }}</span></li>
+<li><span class="spec-label"><i class="bi bi-speedometer2"></i> {% trans "Odometer" %}</span><span class="spec-value">{{ listing.odometer|intcomma }} {% trans "km" %}</span></li>
+<li><span class="spec-label"><i class="bi bi-gear-wide-connected"></i> {% trans "Transmission" %}</span><span class="spec-value">{{ listing.trim.get_transmission_display }}</span></li>
+<li><span class="spec-label"><i class="bi bi-fuel-pump"></i> {% trans "Fuel" %}</span><span class="spec-badge {% if listing.trim.fuel_type == 'PETROL' %}badge-petrol{% elif listing.trim.fuel_type == 'DIESEL' %}badge-fuel{% elif listing.trim.fuel_type == 'HYBRID' %}badge-hybrid{% elif listing.trim.fuel_type == 'ELECTRIC' %}badge-electric{% else %}badge-fuel{% endif %}">{{ listing.trim.get_fuel_type_display }}</span></li>
+<li><span class="spec-label"><i class="bi bi-lightning-charge"></i> {% trans "Power" %}</span><span class="spec-value">{{ listing.trim.horsepower }} {% trans "HP" %}</span></li>
+<li><span class="spec-label"><i class="bi bi-ev-front"></i> {% trans "Engine" %}</span><span class="spec-value">{{ listing.trim.engine_cc }} cc</span></li>
+<li><span class="spec-label"><i class="bi bi-geo-alt"></i> {% trans "Location" %}</span><span class="spec-value">{{ listing.get_location_display }}</span></li>
+</ul>
+</div>
+<div class="card-footer-compare"><a href="{% url 'core:listing_detail' listing.id %}" class="btn-view-details"><i class="bi bi-eye"></i> {% trans "View Details" %}</a></div>
+</div>
+{% endfor %}
+{% if listings|length < 3 %}<div class="compare-card empty"><div class="empty-slot-content"><i class="bi bi-plus-circle"></i><p>{% trans "Empty Slot" %}</p><a href="{% url 'core:search' %}">{% trans "Add a car to compare" %}</a></div></div>{% endif %}
+{% if listings|length < 2 %}<div class="compare-card empty"><div class="empty-slot-content"><i class="bi bi-plus-circle"></i><p>{% trans "Empty Slot" %}</p><a href="{% url 'core:search' %}">{% trans "Add a car to compare" %}</a></div></div>{% endif %}
+</div>
+{% else %}
+<div class="empty-state">
+<div class="empty-state-icon"><i class="bi bi-bar-chart"></i></div>
+<h3>{% trans "No cars selected for comparison" %}</h3>
+<p>{% trans "Browse our listings and click the compare checkbox to add vehicles here for side-by-side comparison." %}</p>
+<a href="{% url 'core:search' %}" class="btn-browse"><i class="bi bi-search"></i> {% trans "Browse Cars" %}</a>
+</div>
+{% endif %}
+</div>
 {% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+document.querySelectorAll('.remove-compare').forEach(btn => {
+btn.addEventListener('click', function () {
+const idToRemove = this.dataset.id;
+let currentIds = new URLSearchParams(window.location.search).get('ids');
+if (currentIds) {
+let idsArray = currentIds.split(',').filter(id => id !== idToRemove);
+if (idsArray.length > 0) { window.location.search = '?ids=' + idsArray.join(','); }
+else { window.location.href = "{% url 'core:compare' %}"; }
+let storedIds = JSON.parse(localStorage.getItem('compareIds') || '[]');
+storedIds = storedIds.filter(id => id !== idToRemove);
+localStorage.setItem('compareIds', JSON.stringify(storedIds));
+}
+});
+});
+});
+</script>
 {% endblock %}

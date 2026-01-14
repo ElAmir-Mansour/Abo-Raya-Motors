@@ -40,3 +40,17 @@ urlpatterns += i18n_patterns(
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATICFILES_DIRS[0] if settings.STATICFILES_DIRS else None)
+
+# Custom error handlers - defined as functions in project level
+# These are only active when DEBUG=False
+def custom_404_view(request, exception):
+    from django.shortcuts import render
+    return render(request, '404.html', status=404)
+
+def custom_500_view(request):
+    from django.shortcuts import render
+    return render(request, '500.html', status=500)
+
+handler404 = custom_404_view
+handler500 = custom_500_view
+

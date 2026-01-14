@@ -25,7 +25,7 @@ def compress_image(image_field, filename):
 class User(AbstractUser):
     """Extended user model with dealer capabilities"""
     is_dealer = models.BooleanField(default=False)
-    phone_number = models.CharField(max_length=15, unique=True)
+    phone_number = models.CharField(max_length=15, unique=True, blank=True, null=True)
     # Egypt Compliance Documents
     commercial_registry = models.ImageField(upload_to='private/docs/', blank=True)
     tax_card = models.ImageField(upload_to='private/docs/', blank=True)
@@ -164,6 +164,16 @@ class Listing(models.Model):
     views = models.IntegerField(default=0, verbose_name=_("View Count"))
     phone_clicks = models.IntegerField(default=0, verbose_name=_("Phone Reveal Clicks"))
 
+    @property
+    def mileage(self):
+        """Alias for odometer field for template compatibility"""
+        return self.odometer
+
+    @property
+    def price_int(self):
+        """Return price as integer for display without decimals"""
+        return int(self.price) if self.price else 0
+
     def save(self, *args, **kwargs):
         """Auto-compress images on save"""
         # Compress all uploaded images
@@ -185,4 +195,21 @@ class Listing(models.Model):
     class Meta:
         verbose_name = _("Listing")
         verbose_name_plural = _("Listings")
+        ordering = ['-created_at']
+
+
+# --- 4. Favorites ---
+class Favorite(models.Model):
+    """User's saved/favorited car listings"""
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='favorites')
+    listing = models.ForeignKey(Listing, on_delete=models.CASCADE, related_name='favorited_by')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user.username} → {self.listing}"
+
+    class Meta:
+        verbose_name = _("Favorite")
+        verbose_name_plural = _("Favorites")
+        unique_together = ['user', 'listing']
         ordering = ['-created_at']
